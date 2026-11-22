@@ -1,0 +1,72 @@
+{
+  "tool": "zeta_audit 0.4.0",
+  "table": "D:\\AI\\fuckoj\\zeta-edge\\out\\odlyzko_zeros1_missing_one.txt",
+  "structure": {
+    "count": 99999,
+    "sha256": "69fe7571ecc2116d406e628658ea62fbe0157b96afa68cb3fd75bf334aac3bae",
+    "first": 14.134725142,
+    "last": 74920.827498994,
+    "nonpositive_ordinates": 0,
+    "exact_duplicates_adjacent": 0,
+    "descending_steps": 0,
+    "index_column_present": false,
+    "index_sequential_breaks": null,
+    "ok": true
+  },
+  "residuals": {
+    "available": true,
+    "sampled": 40,
+    "our_max_residual": 9.261214095968505e-09,
+    "our_max_residual_at": 69858.317087064,
+    "mpmath_available": true,
+    "mpmath_max_residual": 4.241885134605311e-09,
+    "tol": 1e-06,
+    "ok": true
+  },
+  "independent": {
+    "available": true,
+    "compared": 5,
+    "max_abs_diff_vs_mpmath": 2.65305999391785e-10,
+    "ok": true
+  },
+  "completeness": {
+    "available": true,
+    "T": 74920.827498994,
+    "table_count": 99999,
+    "smooth_N_T": 99999.40508857966,
+    "S_T_implied": -0.40508857966051437,
+    "sanity_ok": true,
+    "sanity_note": "weak: does not detect a small number of missing zeros",
+    "windows": [
+      {
+        "rows": "24900..25099",
+        "t_lo_mid": 21865.2081029965,
+        "t_hi_mid": 22019.460162914,
+        "table_zeros_inside": 200,
+        "independent_count": 200,
+        "agree": true
+      },
+      {
+        "rows": "49900..50099",
+        "t_lo_mid": 40361.6109076805,
+        "t_hi_mid": 40505.586437795995,
+        "table_zeros_inside": 200,
+        "independent_count": 201,
+        "agree": false
+      },
+      {
+        "rows": "74900..75099",
+        "t_lo_mid": 57895.479771632,
+        "t_hi_mid": 58033.4762610705,
+        "table_zeros_inside": 200,
+        "independent_count": 200,
+        "agree": true
+      }
+    ],
+    "windows_ok": false,
+    "window_method": "mpmath.nzeros (Turing) at midpoints between ordinates",
+    "ok": false,
+    "note": "ok requires the weak sanity count AND, when mpmath is available, every windowed count to agree. Without mpmath only the weak check runs, and windows_ok is null rather than a false pass."
+  },
+  "all_ok": false
+}

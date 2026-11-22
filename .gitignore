@@ -26,6 +26,10 @@ out/*
 !out/zeros.svg
 !out/Z_0_100.svg
 !out/explicit_error.svg
+# These two are cited by name outside the repo (README, docs/ISSUE_ZETA_LAB.md),
+# so they must resolve for someone who never runs the pipeline.
+!out/odlyzko_audit.json
+!out/odlyzko_negative_control.json
 
 # Internal scratch
 docs/_check.py

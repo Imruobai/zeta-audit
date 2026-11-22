@@ -20,7 +20,24 @@
 
 ## 二、最高优先级：发布到 PyPI
 
-### 为什么这是第一
+### 2.0 PyPI 项目名称填什么
+
+**填 `zeta-audit`**（全小写，连字符，不带空格）。
+
+实测（2026-11-23 查 PyPI JSON API）：`zeta-audit`、`zeta_audit`、`zetaaudit`、
+`zeta-auditor`、`zeta-audit-cli` **全部可用**，没有被占用。
+
+一个必须知道的规则：PyPI 按 **PEP 503** 规范化名称，`-`、`_`、`.` 会互相等价并折叠。
+所以 `zeta-audit`、`zeta_audit`、`Zeta.Audit`、`zeta--audit` 指向的是**同一个项目**。
+注册 `zeta-audit` 就等于锁住了这一整族拼写，别人无法用 `zeta_audit` 冒充。
+
+- 项目名（Project name 输入框）：`zeta-audit`
+- 导入名（代码里写）：`import zeta_audit`
+- 命令（终端里敲）：`zeta-audit zeros.txt`
+
+三者已经在仓库里统一好，`pyproject.toml` 的 `name = "zeta-audit"` 与之对应。
+
+### 2.1 为什么这是第一
 
 - `pip install zeta-audit` 是不可逆的信任信号：能装，才有人试。
 - PyPI 项目页会被 Google 索引；GitHub 仓库页的权重远低于它。
@@ -39,7 +56,7 @@
 1. 在 PyPI 注册（若未注册）：<https://pypi.org/account/register/>
 2. 创建 API token 或配置 Trusted Publishing：
    - PyPI → Your projects → Publishing → Add a new pending publisher
-   - owner: `Imruobai`，repo: `zeta-audit`，workflow: `release.yml`，environment: `pypi`
+   - owner: `KIDA-Nya`，repo: `zeta-audit`，workflow: `release.yml`，environment: `pypi`
 3. 打 tag 触发发布：
 
 ```bash
