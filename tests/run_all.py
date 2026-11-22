@@ -384,6 +384,20 @@ def test_audit_detects_missing_zero() -> None:
               f"|S(T)| = {abs(r_hole['completeness']['S_T_implied']):.2f} -> would pass")
 
 
+
+def test_readmes_agree() -> None:
+    """English and Chinese READMEs must carry the same numbers and the same commands."""
+    import subprocess
+    import sys as _sys
+
+    proc = subprocess.run(
+        [_sys.executable, str(Path(__file__).with_name("test_readme_parity.py"))],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+    )
+    tail = [ln for ln in proc.stdout.splitlines() if ln.strip()][-1:] or ["(no output)"]
+    check("EN/ZH READMEs stay in sync", proc.returncode == 0, tail[0])
+
+
 def main() -> int:
     for fn in (
         test_zeta_values,
@@ -400,6 +414,7 @@ def main() -> int:
         test_parallel_proof,
         test_primegen_attestation,
         test_base_cache_consistency,
+        test_readmes_agree,
         test_crosscheck_against_mpmath,
         test_audit_table,
         test_audit_detects_missing_zero,

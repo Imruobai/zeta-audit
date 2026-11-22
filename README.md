@@ -1,5 +1,7 @@
 # zeta-audit
 
+**English** | [中文](README.zh-CN.md)
+
 **Point it at a zero table someone gave you and get a verdict.**
 
 ```bash
@@ -195,6 +197,7 @@ zeta_audit/
   serve.py         stdlib HTTP service
 data/odlyzko_zeros1.txt   the 100k reference table the audit is tested against
 pipeline.py / report.py / verify.py / tests/run_all.py
+tests/test_readme_parity.py   keeps this file and README.zh-CN.md in sync
 docs/COMPARISON.md  how this compares to existing work, including where it loses
 docs/LAUNCH_COPY.md description, announcement posts, Q&A for introducing the repo
 docs/DESCRIPTION.md repo About field, PyPI summary, long description, topics
