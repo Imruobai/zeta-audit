@@ -10,6 +10,13 @@ import math
 import sys
 from pathlib import Path
 
+# Windows consoles default to a legacy code page (cp1252 / cp936), and this suite prints
+# mathematical symbols (delta, gamma, pi, zeta, em dash). Without this, `check()` dies with
+# UnicodeEncodeError under CI's Windows runner *after* some tests already ran, so the job
+# fails for a presentation reason rather than a mathematical one. Reconfiguring stdout is
+# the narrowest fix and also makes redirected output UTF-8.
+import _console  # noqa: F401  (side effect: force UTF-8 output)
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from zeta_audit.bounds import cramer_gap_ceiling, gap_audit, pi_error_audit

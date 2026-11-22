@@ -18,6 +18,9 @@ import tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
+# Windows consoles are not UTF-8 by default; this file prints non-ASCII text.
+import _console  # noqa: F401  (side effect: force UTF-8 on stdout/stderr)
+
 from zeta_audit.audit_table import audit, load_table  # noqa: E402
 from zeta_audit.crosscheck import HAS_MPMATH  # noqa: E402
 

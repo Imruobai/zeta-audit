@@ -15,6 +15,9 @@ import pathlib
 import re
 import sys
 
+# Windows consoles are not UTF-8 by default; this file prints non-ASCII text.
+import _console  # noqa: F401  (side effect: force UTF-8 on stdout/stderr)
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 DOCS = ["README.md", "README.zh-CN.md", "PAPER.md", "CONTRIBUTING.md",
