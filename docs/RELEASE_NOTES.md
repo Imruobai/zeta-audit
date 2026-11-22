@@ -13,7 +13,7 @@ the arithmetic here is float, not certified, so `verify` would have overpromised
 - console script `zetaedge` -> `zeta-audit-cli`; the main tool stays `zeta-audit`
 - `python -m zetaedge...` -> `python -m zeta_audit...`
 
-Nothing else changed in this release; the 81 checks and the negative control pass
+Nothing else changed in this release; the 83 checks and the negative control pass
 unchanged.
 
 ### Packaging

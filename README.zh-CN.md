@@ -2,7 +2,7 @@
 
 [英文](README.md) | **中文**
 
-**把它指向别人给你的零点表，得到一个判定。**
+**把别人给你的零点表丢给它，直接看结论。**
 
 ```bash
 pip install "zeta-audit[crosscheck]"
@@ -24,28 +24,29 @@ completeness: count=100,000 vs smooth N(T)=99999.405  S(T) implied = +0.595  (we
 RESULT: ALL CHECKS PASSED
 ```
 
-这是对 Odlyzko `zeros1` 的真实运行结果——10 万个零点，高度到 74,920.8
-（sha256 `3436c916…`）。程序输出是英文，字段名见下表：
+这是真跑出来的。表是 Odlyzko 的 `zeros1`，10 万个零点，最高到 74,920.8，sha256
+`3436c916…`。输出行是英文（程序就这么打），字段意思如下：
 
-| 字段 | 含义 |
+| 字段 | 意思 |
 | --- | --- |
-| `structure` | 结构：排序、重复、非正坐标 |
-| `residuals` | 残差：采样坐标上的 \|ζ(½+iγ)\|，两套求值器各给一个 |
-| `independent` | 独立核对：与 `mpmath.zetazero` 的坐标偏差 |
-| `completeness` | 完整性：计数 vs 平滑 N(T)，以及各窗口的独立计数 |
-| `[ok]` / `[MISMATCH]` | 该窗口一致 / 不一致 |
+| `structure` | 排序对不对、有没有重复、坐标是否非正 |
+| `residuals` | 抽样坐标处 \|ζ(½+iγ)\| 有多大，两套求值器各算一遍 |
+| `independent` | 和 `mpmath.zetazero` 的坐标差多少 |
+| `completeness` | 总数对不对，以及各窗口里零点的真实个数 |
+| `[ok]` / `[MISMATCH]` | 这个窗口对上了 / 对不上 |
 
-## 最要紧的那项检查，以及它是怎么被验证的
+## 最要紧的一项，以及凭什么信它
 
-多数零点表出错的方式都很平庸：一行顺序错了、重复了一行、编造了一个点。这些好抓。
+零点表常见的毛病都很好抓：某一行顺序颠倒了、重复了一行、凭空多出一个点。这些都简单。
 
-难的是**漏掉**一个零点——因为它列出的每个坐标都可以是对的，文件只是安静地跳过了一个。
+真正难的是**少了一个零点**。表里列出来的每一个坐标都可以是对的，文件只是悄悄漏跳过一行，
+你翻不出来。
 
-所以这个工具不只核对“写出来的对不对”，它会**数**。取三个各 200 行的窗口，每个窗口内
-的零点个数**只从 ζ 本身**重新算一遍（用独立实现：mpmath 的 `nzeros`，Turing 方法），
-再与表格在该窗口内列出的行数对比。
+所以这个工具不只核对“写出来的对不对”，它还要**数**。随便挑三个各 200 行的窗口，每个窗口
+里有几个零点，**只拿 ζ 本身重算一遍**（走独立实现，mpmath 的 `nzeros`，Turing 方法），
+再和表格在同一个窗口里列出的行数比。
 
-证据来自 `out/odlyzko_negative_control.json`——同一张 10 万行的表，**删掉第 50,050 行**：
+证据在 `out/odlyzko_negative_control.json`：同一张 10 万行的表，把第 50,050 行删掉：
 
 ```
 completeness: count=99,999 vs smooth N(T)=99999.405  S(T) implied = -0.405  (weak sanity check)
@@ -56,74 +57,74 @@ completeness: count=99,999 vs smooth N(T)=99999.405  S(T) implied = -0.405  (wea
 RESULT: FAILED
 ```
 
-它失败了，而且指对了窗口。注意那行弱校验：`|S(T)| = 0.4`，**本来是能通过的**。
-「计数 vs 平滑值」这种检查看不见单独一个洞，只有独立计数能。
+它报错了，指的就是那个窗口。注意上面那行弱校验：`|S(T)| = 0.4`，这个数是能过的。
+拿总数去比平滑值，看不出单独一个洞，只有独立计数才行。
 
-### 三个试过但不成立的做法
+### 三个试过、都不成立的做法
 
-记下来是因为它们都是最直观的想法，而它们全都错——不写下来，别人还会再试一遍。
+写下来是因为这三个都是第一反应会想到的，而且全错。不记下来，下次还是有人再踩一遍。
 
 | 做法 | 为什么不行 |
 | --- | --- |
-| **局部间隔统计** | 在 GUE（高斯酉系综）间距分布下，约 7% 的**合法**间隔会超过其局部中位数的 2 倍。实测：在一张**完全正确**的 10 万行表上，99,999 个间隔里有 7,155 个被标记。真正的洞和普通涨落分不开。 |
-| **辐角原理窗口计数** | 原理正确，但每个窗口需要 O(\|Z\|/step) 次 ζ 求值。T ≈ 4×10⁴ 时约 1.5×10⁴ 个点 × 6 ms，已经不可用。`nzeros` 只要 0.1 秒。 |
-| **在零点坐标处调 `nzeros`** | 浮点舍入会让 `nzeros(γ_k)` 不可预测地返回 *k* 或 *k−1*（实测：γ₃ 返回 2 而不是 3）。计数必须在两个零点**之间**取。 |
+| **看局部间隔** | GUE 间距分布下，约 7% 的**正常**间隔也会超过局部中位数的两倍。实测在一张**完全正确**的 10 万行表上，99,999 个间隔里标出了 7,155 个。真有个洞，混在噪声里根本分不出来。 |
+| **用辐角原理数窗口** | 原理没问题，但一个窗口要 O(\|Z\|/step) 次 ζ 求值。T ≈ 4×10⁴ 时差不多 1.5×10⁴ 个点、每点 6 ms，已经跑不动了。`nzeros` 干同样的活只要 0.1 秒。 |
+| **直接在零点坐标上调 `nzeros`** | 浮点舍入会让 `nzeros(γ_k)` 时而返回 *k*、时而返回 *k−1*（实测 γ₃ 返回 2，不是 3）。必须取在两个零点**中间**。 |
 
-这三种做法都被 `test_audit_detects_missing_zero` 钉住了，所以日后谁想“简化”回其中任何
-一种，CI 都会失败。
+这三条都写进了 `test_audit_detects_missing_zero`。以后谁想“顺手简化”回其中任何一种，CI 直接拦下。
 
 ## 四项检查
 
 | 检查 | 抓什么 | 怎么抓 |
 | --- | --- | --- |
-| **structure**（结构） | 换位、重复、降序的坐标 | 排序与重复扫描 |
-| **residuals**（残差） | 编造出来的点 | 在采样坐标上算 \|ζ(½+iγ)\|，用**两套**求值器 |
-| **independent**（独立） | 系统性错值 | 与 `mpmath.zetazero` 对坐标 |
-| **completeness**（完整性） | **漏掉**的零点 | 窗口化的独立计数（见上） |
+| **structure** 结构 | 换位、重复、降序 | 扫一遍排序和重复 |
+| **residuals** 残差 | 编出来的点 | 抽样处算 \|ζ(½+iγ)\|，**两套**求值器 |
+| **independent** 独立 | 整体偏了的数 | 和 `mpmath.zetazero` 逐个坐标比 |
+| **completeness** 完整性 | **漏掉**的零点 | 窗口独立计数（见上） |
 
-## 为什么做这个
+## 为什么写这个
 
-零点表是承重的“信我”文件。所有对 ζ 的数值使用都依赖它们，而它们以不透明的数据形式
-分发，检查这一步却一直没有标准做法。能严格算出零点的工具——[Arb](https://arblib.org)、
-[mpmath](https://mpmath.org)——都很好，但它们是在**生产**，不是在审计别人给的文件。
+零点表是承重件，全靠一句“信我”。所有对 ζ 的数值计算都压在它上面，可它一直是不透明的数据
+文件发出来，检查这一步压根没有标准做法。能严格算零点的工具都很好用，[Arb](https://arblib.org) 和 [mpmath](https://mpmath.org)
+都是，但它们在**生产**数据，不是去审计别人手里的文件。
 
-这个仓库就是“检查”那一步，外加让检查本身可信所需的参照材料。
+这个仓库补的就是“检查”这一步。另外附带一点参照材料，用来让检查本身也站得住。
 
-## 其余部分的真实状态（诚实表）
+## 其他部分的真实水平
 
-这个栈的多数部分在别处有更强的实现。逐项对照见
-**[docs/COMPARISON.md](docs/COMPARISON.md)**。摘要：
+坦白说，这里面大部分东西别处都有更强的实现。逐项对比在
+**[docs/COMPARISON.md](docs/COMPARISON.md)**，摘要：
 
 | 组件 | 状态 |
 | --- | --- |
-| 零点表审计（上面那个） | **本仓库的重点**；最接近的已有工作是 [zeta-lab](https://github.com/teal-sea/zeta-lab) 内的一个验证**组件**，不是命令行工具 |
-| ζ、θ、Z 求值 | 弱于 Arb（浮点，不是包围区间）——保留自有实现是为了零依赖，且它本身要参与交叉验证 |
-| 零点隔离 | 弱于 Arb 的 `acb.zeta_zeros`（没有严格的包围区间） |
-| 辐角原理条带计数 | 作为**独立**计数有用；浮点级别，不是严格认证 |
-| ψ(x)/R(x) 双实现 | 对别人的代码是一个可用的交叉校验参照 |
-| 条件性素数证书 | **仅作演示**——比 MR 慢约 100 倍，且依据是 ERH/GRH，不是 RH |
-| 「素数的透明日志」 | 作为产品**已撤回**；通用的日志/Merkle 代码保留 |
+| 零点表审计（上面那个） | **这才是重点**。最接近的已有东西是 [zeta-lab](https://github.com/teal-sea/zeta-lab) 里的一个验证**组件**，不是命令行工具 |
+| ζ、θ、Z 求值 | 不如 Arb，浮点而已，没有包围区间。留着自己这套是为了零依赖，而且它正好要参与交叉验证 |
+| 零点隔离 | 不如 Arb 的 `acb.zeta_zeros`，没有严格包围区间 |
+| 辐角原理条带计数 | 当**独立**计数有用；浮点级别，谈不上严格认证 |
+| ψ(x)/R(x) 双实现 | 别人写代码时能拿它当交叉校验的参照 |
+| 条件性素数证书 | **只是演示**。比 MR 慢约 100 倍，而且靠的是 ERH/GRH，不是 RH |
+| 「素数的透明日志」 | 当产品**已经撤了**；通用的日志/Merkle 代码还留着 |
 
-## 验证：这些数字凭什么可信
+## 验证：数字凭什么可信
 
 ```bash
-python tests/run_all.py    # 81 项检查
-python verify.py           # 对已提交产物的第三方复核
-python pipeline.py         # 重新生成全部产物（约 5 分钟，含 10 万行审计）
-python report.py           # 只从产物渲染出 REPORT.md
+python tests/run_all.py    # 83 项检查
+python verify.py           # 第三方复核已提交的产物
+python pipeline.py         # 全部产物重跑一遍（约 5 分钟，含 10 万行审计）
+python report.py           # 只从产物渲染 REPORT.md
 ```
 
-最重要的一项检查是**唯一非循环**的那项：**与 mpmath 吻合**，一个独立实现。
+最要紧的是唯一一个**不循环**的检查：和 mpmath 对不对得上。那是个独立实现。
 
 | 检查 | 结果 |
 | --- | --- |
 | 我们的零点 vs `mpmath.zetazero`（前 50 个） | max \|Δγ\| = 1.4e-11 |
-| 我们的 Z(t) vs `mpmath.siegelz` | max \|Δ\| = 1.5e-11（t = 1000） |
+| 我们的 Z(t) vs `mpmath.siegelz`（t = 1000） | max \|Δ\| = 1.5e-11 |
 | mpmath 的 ζ 在我们给出的坐标处 | max \|ζ\| = 1.9e-11 |
-| Odlyzko `zeros1`，10 万行 | 四项检查全部通过 |
-| 同一张表，删掉一行 | **FAILED**，且指对了窗口 |
+| Odlyzko `zeros1`，10 万行 | 四项全过 |
+| 同一张表，删掉一行 | **FAILED**，而且指对了窗口 |
 
-实测结果见 **[REPORT.md](REPORT.md)**，由 `out/*.json` 生成，所以文字不会与证据脱节。
+其余实测数据在 **[REPORT.md](REPORT.md)**。那份文件是从 `out/*.json` 渲染出来的，所以文字
+不会和证据走岔。
 
 ```
 零点     649 个零点，0 < γ ≤ 1000；max |ζ(½+iγ)| = 2.6e-11；与已发表表 Δγ = 8.7e-12
@@ -135,23 +136,23 @@ python report.py           # 只从产物渲染出 REPORT.md
 
 ```bash
 pip install zeta-audit                  # 只依赖 numpy
-pip install "zeta-audit[crosscheck]"    # 加 mpmath，启用独立检查
+pip install "zeta-audit[crosscheck]"    # 加 mpmath，独立检查才可用
 ```
 
-需要 Python ≥ 3.10。没装 mpmath 时，独立检查与窗口检查会报告 **skipped**，而不是“通过”。
+要 Python ≥ 3.10。没装 mpmath 的话，独立检查和窗口检查会报 **skipped**，不会假装通过。
 
 ## 用法
 
 ```bash
 zeta-audit zeros.txt                       # 主入口
-zeta-audit zeros.txt --windows 5           # 更多独立窗口
-zeta-audit zeros.txt --json r.json         # 完整报告
+zeta-audit zeros.txt --windows 5           # 多开几个独立窗口
+zeta-audit zeros.txt --json r.json         # 出完整报告
 
-python -m zeta_audit zeros --t-max 1000      # 找零点并给出残差
+python -m zeta_audit zeros --t-max 1000      # 找零点，给出残差
 python -m zeta_audit strip --t-max 600       # 辐角原理验证
-python -m zeta_audit bounds --x-max 10000000 # 误差界审计，每个界的假设都标注
-python -m zeta_audit crosscheck              # 与 mpmath 对比
-python -m zeta_audit.serve --port 8788       # 标准库 HTTP 包装
+python -m zeta_audit bounds --x-max 10000000 # 误差界审计，每个界依赖什么都标出来
+python -m zeta_audit crosscheck              # 和 mpmath 对一遍
+python -m zeta_audit.serve --port 8788       # 标准库写的 HTTP 壳
 ```
 
 ```python
@@ -161,13 +162,13 @@ report = audit_zero_table(load_table("zeros.txt"), windows=3)
 if not report["all_ok"]:
     for w in report["completeness"]["windows"]:
         if not w["agree"]:
-            print("可能在以下行附近有洞：", w["rows"],
+            print("possible hole near rows", w["rows"],
                   w["table_zeros_inside"], "vs", w["independent_count"])
 ```
 
-## 支持的表格式
+## 认哪些表格式
 
-自动识别；索引列、`key=value`、逗号/制表符分隔、`#` 注释都能处理：
+自动识别。索引列、`key=value`、逗号或制表符分隔、`#` 注释，都能吃：
 
 ```
 14.134725141734693
@@ -175,46 +176,46 @@ if not report["all_ok"]:
 gamma=14.134725141734693
 ```
 
-Odlyzko 和 LMFDB 的下载文件无需转换即可解析——上面那次 10 万行审计直接用的是 Odlyzko
-的原始文件。如果你的文件解析不了，那是值得提交的 bug。
+Odlyzko 和 LMFDB 下载下来直接用，不用转换。上面那次 10 万行审计就是拿 Odlyzko 的原始文件
+跑的。你要是有文件读不进来，那是个值得提的 bug。
 
-## 目录结构
+## 目录
 
 ```
 zeta_audit/
   audit_table.py   *** 表审计器（命令行：zeta-audit）***
-  crosscheck.py    mpmath 交叉验证 + nzeros 窗口（可选依赖）
+  crosscheck.py    和 mpmath 交叉验证 + nzeros 窗口（可选依赖）
   zeta.py          ζ(s)、θ(t)、Hardy Z（零依赖浮点实现）
-  zeros.py         零点查找 + 残差审计
-  explicit.py      ψ(x)、π(x)、li、R(x)，各自带一套冗余的第二实现
-  certify.py       辐角原理的条带与窗口计数
-  bounds.py        Schoenfeld / Cramér 误差界，逐界标注假设
+  zeros.py         找零点 + 残差审计
+  explicit.py      ψ(x)、π(x)、li、R(x)，每个都另有一套冗余实现
+  certify.py       辐角原理的条带计数和窗口计数
+  bounds.py        Schoenfeld / Cramér 误差界，逐条标注依赖
   primality.py     13 基底无条件测试 + ERH/GRH 基底扫描
-  parallel.py      并行扫描 + 实测的顺序耗时估计
+  parallel.py      并行扫描 + 实测出来的顺序耗时估计
   transparency.py  哈希链日志、Merkle 锚、包含证明
   primegen.py      存证演示（不是产品）
   plot.py          零依赖 SVG 图表
   serve.py         标准库 HTTP 服务
-data/odlyzko_zeros1.txt   审计所依据的 10 万行参照表
+data/odlyzko_zeros1.txt   审计拿来对照的 10 万行表
 pipeline.py / report.py / verify.py / tests/run_all.py
-tests/test_readme_parity.py   保证本文件与英文版 README.md 不失配
-docs/COMPARISON.md  与已有工作的逐项对照，包括本仓库输的那些
-docs/LAUNCH_COPY.md 介绍用的描述、公告稿、问答
+tests/test_readme_parity.py   保证这份文件和英文版不会走岔
+docs/COMPARISON.md  和已有工作逐项对比，包括我们输的那些
+docs/LAUNCH_COPY.md 介绍用的文案、公告稿、问答
 docs/DESCRIPTION.md 仓库 About 字段、PyPI 摘要、长描述、标签
-docs/PYPI_README.md PyPI 项目页（由 DESCRIPTION.md 第 3 节生成）
+docs/PYPI_README.md PyPI 项目页（从 DESCRIPTION.md 第 3 节生成）
 ```
 
 ## 局限
 
-- **浮点，不是严格认证。** Arb 给的是严格包围区间；这里给的是实测与 mpmath 吻合到约
-  1e-12 的估计值。需要证明级算术时请用 Arb，把这里当作第二意见。
-- **窗口完整性是采样，不是穷举。** 10 万行里只取 3 个各 200 行的窗口。采样窗口之外的
-  洞会被漏掉。`--windows` 是用时间换覆盖率；全量扫描不是这个工具做的事。
-- 残差同样是采样：10 万个坐标里取 40 个，原因同上。
-- 条带验证在纯 Python 下上限是 T = 600；方法本身可扩展（Platt–Trudgian 做到 3×10¹²），
-  解释器不行。
-- `2 log²n` 这个基底上界依据的是 **ERH/GRH，不是 RH**。证书会把假设打印出来。
-- `CRAMER_C = 1/(4π)` 是一个保守的工程常数，不是文献中的最佳常数；审计会打印比值，
-  便于你换成自己的。
+- **浮点是浮点，不是认证。** Arb 给的是严格包围区间；这里给的是估计值，实测和 mpmath 吻合
+  到大约 1e-12。要证明级算术就用 Arb，这边当第二意见。
+- **窗口完整性是抽样，不是穷举。** 10 万行里只挑 3 个各 200 行的窗口。窗口之外的洞会漏掉。
+  `--windows` 是拿时间换覆盖率；全表扫一遍不是这个工具干的事。
+- 残差也是抽样，10 万个坐标里取 40 个，理由同上。
+- 纯 Python 下条带验证最高只能到 T = 600。方法本身能往上扩（Platt–Trudgian 做到了 3×10¹²），
+  解释器扩不动。
+- `2 log²n` 这个基底上界靠的是 **ERH/GRH，不是 RH**。证书里会把假设打出来。
+- `CRAMER_C = 1/(4π)` 是个保守的工程常数，不是文献里的最好常数。审计会把比值打出来，
+  你可以换自己的。
 
-MIT。最有用的事情是寄一张能把这个工具判错的表过来。
+MIT。最有用的东西是给我一张能把它判错的表。

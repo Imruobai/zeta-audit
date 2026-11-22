@@ -104,7 +104,7 @@ Most of the stack exists elsewhere in stronger forms. See
 ## Verification: what makes the numbers trustworthy
 
 ```bash
-python tests/run_all.py    # 81 checks
+python tests/run_all.py    # 83 checks
 python verify.py           # third-party re-check of committed artifacts
 python pipeline.py         # regenerate everything (~5 min, includes the 100k audit)
 python report.py           # REPORT.md rendered from artifacts only
