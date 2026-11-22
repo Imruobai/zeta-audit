@@ -144,5 +144,5 @@ Then confirm:
 - the sha256 you quote matches `out/odlyzko_audit.json`
 - `pip install -e .` works (not verified on the authoring machine  -  no setuptools there)
 
-**Placeholder to fill:** the `[project.urls]` block in `pyproject.toml` still reads
-`https://github.com/USER/zeta-audit`. Replace `USER` before publishing, or remove the block.
+**URLs are set:** `[project.urls]` in `pyproject.toml` points at
+`https://github.com/Imruobai/zeta-audit` (Homepage, Repository, Issues).
