@@ -40,6 +40,7 @@ maintenance. The page only earns its keep if you need something to link from a p
 docs/
   RELEASE_NOTES.md   what shipped, what was measured, what is not claimed
   COMPARISON.md      how this compares to existing work, including where it loses
+  LAUNCH_COPY.md     copy-paste description, posts, Q&A, pre-publish checklist
   DEMO.md            this file
   landing.html       single static page, no dependencies
 ```

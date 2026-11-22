@@ -196,6 +196,7 @@ zetaedge/
 data/odlyzko_zeros1.txt   the 100k reference table the audit is tested against
 pipeline.py / report.py / verify.py / tests/run_all.py
 docs/COMPARISON.md  how this compares to existing work, including where it loses
+docs/LAUNCH_COPY.md description, announcement posts, Q&A for introducing the repo
 ```
 
 ## Limits
