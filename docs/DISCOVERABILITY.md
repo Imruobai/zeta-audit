@@ -90,7 +90,7 @@ Audit a Riemann zeta zero table and catch a missing zero. Four checks: row struc
 **CI 徽章本身就是社交证明。** 一个绿勾说明"有人跑过它"，比十段自述有力。加在 README 顶部：
 
 ```markdown
-[![ci](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml)
+[![ci](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml)
 ```
 
 ### 3.4 `CITATION.cff`（本仓库已完成）

@@ -23,7 +23,7 @@ command you ran, and the output. Reproducibility matters more than the size of t
 ## Code changes
 
 ```bash
-git clone https://github.com/Imruobai/zeta-audit
+git clone https://github.com/KIDA-Nya/zeta-audit
 cd zeta-audit
 pip install -e ".[crosscheck]"
 python tests/run_all.py     # must be fully green

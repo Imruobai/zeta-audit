@@ -2,7 +2,7 @@
 
 [英文](README.md) | **中文**
 
-[![ci](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
+[![ci](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
 
 **把别人给你的零点表丢给它，直接看结论。**
 

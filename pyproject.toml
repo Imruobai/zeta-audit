@@ -36,10 +36,10 @@ classifiers = [
 dependencies = ["numpy>=1.24"]
 
 [project.urls]
-Homepage = "https://github.com/Imruobai/zeta-audit"
-Repository = "https://github.com/Imruobai/zeta-audit"
-Issues = "https://github.com/Imruobai/zeta-audit/issues"
-Changelog = "https://github.com/Imruobai/zeta-audit/blob/main/docs/RELEASE_NOTES.md"
+Homepage = "https://github.com/KIDA-Nya/zeta-audit"
+Repository = "https://github.com/KIDA-Nya/zeta-audit"
+Issues = "https://github.com/KIDA-Nya/zeta-audit/issues"
+Changelog = "https://github.com/KIDA-Nya/zeta-audit/blob/main/docs/RELEASE_NOTES.md"
 
 [project.optional-dependencies]
 # mpmath is OPTIONAL and used only for the independent cross-check and the windowed

@@ -12,8 +12,8 @@ authors:
     alias: "Imruobai"
 type: software
 license: MIT
-repository-code: "https://github.com/Imruobai/zeta-audit"
-url: "https://github.com/Imruobai/zeta-audit"
+repository-code: "https://github.com/KIDA-Nya/zeta-audit"
+url: "https://github.com/KIDA-Nya/zeta-audit"
 keywords:
   - riemann zeta
   - zeta zeros

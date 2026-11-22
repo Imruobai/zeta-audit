@@ -2,7 +2,7 @@
 
 **English** | [中文](README.zh-CN.md)
 
-[![ci](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
+[![ci](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/KIDA-Nya/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
 
 **Point it at a zero table someone gave you and get a verdict.**
 

@@ -145,4 +145,4 @@ Then confirm:
 - `pip install -e .` works (not verified on the authoring machine  -  no setuptools there)
 
 **URLs are set:** `[project.urls]` in `pyproject.toml` points at
-`https://github.com/Imruobai/zeta-audit` (Homepage, Repository, Issues).
+`https://github.com/KIDA-Nya/zeta-audit` (Homepage, Repository, Issues).
