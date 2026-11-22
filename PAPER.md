@@ -4,7 +4,7 @@
 is that three previously conditional statements become theorems usable in a specification:
 Schoenfeld's explicit bounds for 蠄(x) and 蟺(x), Cram茅r's prime-gap ceiling, and the fact
 that Miller鈥揜abin with base set {a prime : a 鈮?2 log虏n} becomes a *deterministic* primality
-test. We describe `zeta-edge`, a dependency-light implementation that (i) re-derives
+test. We describe `zeta-audit`, a dependency-light implementation that (i) re-derives
 nontrivial zeros with an explicit residual, (ii) re-verifies RH in a strip by the argument
 principle, (iii) audits each of those bounds numerically, and (iv) issues prime
 certificates that a third party can re-check from `n` alone. All figures below come from

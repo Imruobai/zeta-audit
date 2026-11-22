@@ -2,32 +2,32 @@
   "chain_verify": {
     "ok": true,
     "entries": 6,
-    "head": "41ffde23723f907031653ddd4e64f1a9260e3cd81308021636d13a4833ea5652"
+    "head": "03cacb93df7d24d5149592d85ebb943a70e83dc128c7eaeda68494c5d7cebb36"
   },
   "anchor": {
     "entries": 6,
-    "head": "41ffde23723f907031653ddd4e64f1a9260e3cd81308021636d13a4833ea5652",
-    "merkle_root": "d86ef0a507cdc840aa9ec78e3f53fefd7a3c2e917ead87a7d6623ffe513febf0",
-    "ts": 1795340891.5644648
+    "head": "03cacb93df7d24d5149592d85ebb943a70e83dc128c7eaeda68494c5d7cebb36",
+    "merkle_root": "258f7ae0ecacf78f139fb9adaa5127778cc41d6090c5f922997dc2b969f4848d",
+    "ts": 1795343311.2985606
   },
   "sample_inclusion_proof": {
     "seq": 3,
-    "entry_hash": "2c51b902f05f8f69e03e864dae38ba232b28f201b818ecc587b6116bf20a7eb4",
+    "entry_hash": "6a11dec9dc0bc1e9995a43f53db03771e88489e56dd4f12b6fdbf2f9ba3f7dc3",
     "path": [
       {
         "side": "left",
-        "hash": "f34f2016a72d138b3ae7a684709bd06f8337b33267c59141b56ee8dcbc97413c"
+        "hash": "939448ad9484cca5a1d44046ee7b0d182f8342905ef6116c98755bbe48329285"
       },
       {
         "side": "left",
-        "hash": "e31e0b203b7db4f91a077b43f7b4a109ae082be0cf3b82238f7a9a07963806cb"
+        "hash": "925131faff51f9784214f7cb094e11dcec6d9416c038540d555308fdac762b6b"
       },
       {
         "side": "right",
-        "hash": "492c3f095ce02a74623bf14a36e5ff8642441e705d5485b68e85e732b4bec97a"
+        "hash": "b2833b32f38f3a6ce493eedfaae5eedf0b79dee5e2b30f84d5979672fe17752b"
       }
     ],
-    "root": "d86ef0a507cdc840aa9ec78e3f53fefd7a3c2e917ead87a7d6623ffe513febf0",
+    "root": "258f7ae0ecacf78f139fb9adaa5127778cc41d6090c5f922997dc2b969f4848d",
     "entries": 6
   },
   "inclusion_verified": true,

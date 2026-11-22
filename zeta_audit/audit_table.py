@@ -33,7 +33,7 @@ from pathlib import Path
 
 # Read the version from the package without importing it (avoids a circular import:
 # __init__ imports this module for its public ``audit_zero_table``).
-_TOOL_VERSION = "0.3.1"
+_TOOL_VERSION = "0.4.0"
 
 
 # --------------------------------------------------------------------------- #
@@ -305,7 +305,7 @@ def check_completeness(t: Table, windows: int = 3, window_rows: int = 200) -> di
 # --------------------------------------------------------------------------- #
 def audit(t: Table, windows: int = 3) -> dict:
     res = {
-        "tool": f"zetaedge {_TOOL_VERSION}",
+        "tool": f"zeta_audit {_TOOL_VERSION}",
         "table": t.path,
         "structure": check_structure(t),
         "residuals": check_residuals(t),
@@ -319,7 +319,7 @@ def audit(t: Table, windows: int = 3) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
-        prog="python -m zetaedge.audit_table",
+        prog="python -m zeta_audit.audit_table",
         description="audit an external zero table (structure, residuals, independence, completeness)",
     )
     ap.add_argument("table", help="path to the zero table file")

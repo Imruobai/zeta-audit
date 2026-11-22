@@ -3,28 +3,52 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zetaedge"
-version = "0.3.1"
-description = "Audit a Riemann zeta zero table: residuals, independent cross-check, completeness. Plus labelled conditional bounds."
-readme = "README.md"
+name = "zeta-audit"
+version = "0.4.0"
+description = "Audit a Riemann zeta zero table: structure, residuals, an independent cross-check, and a windowed count that detects a missing zero."
+readme = "docs/PYPI_README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "zeta-edge" }]
-keywords = ["riemann-hypothesis", "primes", "miller-rabin", "certificate-transparency", "number-theory"]
+authors = [{ name = "zeta-audit contributors" }]
+keywords = [
+    "riemann-zeta",
+    "zeta-zeros",
+    "zero-table",
+    "odlyzko",
+    "lmfdb",
+    "number-theory",
+    "verification",
+    "mpmath",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
 dependencies = ["numpy>=1.24"]
 
+[project.urls]
+Homepage = "https://github.com/USER/zeta-audit"
+Issues = "https://github.com/USER/zeta-audit/issues"
+
 [project.optional-dependencies]
-# mpmath is OPTIONAL and used only for the independent cross-check and table auditing.
-# Without it those checks report "skipped" instead of pretending to have run.
+# mpmath is OPTIONAL and used only for the independent cross-check and the windowed
+# completeness count. Without it those checks report "skipped" instead of pretending
+# to have run.
 crosscheck = ["mpmath>=1.3"]
-dev = ["mpmath>=1.3"]
+dev = ["mpmath>=1.3", "pytest>=7"]
 
 [project.scripts]
-zetaedge = "zetaedge.cli:main"
-zeta-audit = "zetaedge.audit_table:main"
+zeta-audit = "zeta_audit.audit_table:main"
+zeta-audit-cli = "zeta_audit.cli:main"
 
 [tool.setuptools]
-packages = ["zetaedge"]
+packages = ["zeta_audit"]
 
 [tool.setuptools.package-data]
-zetaedge = ["py.typed"]
+zeta_audit = ["py.typed"]

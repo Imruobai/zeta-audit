@@ -1,5 +1,29 @@
 # Release notes
 
+## v0.4.0 — renamed to `zeta-audit`
+
+The distribution is now **`zeta-audit`** (`import zeta_audit`, CLI `zeta-audit`).
+`zetaedge` said nothing about what the tool does; `audit` does, and it is the honest verb —
+the arithmetic here is float, not certified, so `verify` would have overpromised.
+
+### Breaking
+
+- package `zetaedge` -> `zeta_audit`
+- `pip install zetaedge` -> `pip install zeta-audit`
+- console script `zetaedge` -> `zeta-audit-cli`; the main tool stays `zeta-audit`
+- `python -m zetaedge...` -> `python -m zeta_audit...`
+
+Nothing else changed in this release; the 81 checks and the negative control pass
+unchanged.
+
+### Packaging
+
+- `readme` now points at `docs/PYPI_README.md`, a shorter project page generated from
+  `docs/DESCRIPTION.md` section 3, so PyPI does not inherit the full repository README.
+- added `classifiers`, `[project.urls]`, `py.typed`, and a `pytest` dev extra.
+- **`[project.urls]` still contains `USER`**: replace it before publishing.
+
+
 ## v0.3.1 — the completeness check actually works
 
 Three earlier attempts at detecting a **missing** zero were wrong. This release replaces all
@@ -35,8 +59,8 @@ counts, compared with the table's rows in that window.
 - `count_zeros_window(t_lo, t_hi)` added to `certify.py`; `_contour` generalised to an
   arbitrary height interval. Kept because it is the only *certified-by-ζ* count in the repo,
   even though `nzeros` is what the fast path uses.
-- `zetaedge/__init__.py` re-exports the CLI-entry-point modules lazily, removing a
-  `runpy` RuntimeWarning from `python -m zetaedge.audit_table`.
+- `zeta_audit/__init__.py` re-exports the CLI-entry-point modules lazily, removing a
+  `runpy` RuntimeWarning from `python -m zeta_audit.audit_table`.
 - `--strip` flag replaced by `--windows N`.
 - Tests: 78 → 81. New `test_audit_detects_missing_zero` asserts both that a hole is caught
   *and* that the weak check would have missed it.
@@ -57,7 +81,7 @@ looking for a purpose. This version has one: **audit a zero table someone handed
 ### New: `zeta-audit`
 
 ```bash
-pip install "zetaedge[crosscheck]"
+pip install "zeta-audit[crosscheck]"
 zeta-audit zeros.txt
 ```
 
@@ -76,7 +100,7 @@ Exit code 0 iff every check that could run passed. `--json` emits the full repor
 Parser is format-tolerant: bare ordinates, `index ordinate`, `gamma=…`, comma/tab
 separated, `#` comments. Odlyzko and LMFDB files parse without conversion.
 
-### New: `zetaedge crosscheck`
+### New: `zeta_audit crosscheck`
 
 Compares our zeros and Z(t) against mpmath, the only non-circular check in the project.
 

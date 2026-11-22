@@ -10,7 +10,7 @@ localhost or inside a VPC):
   POST /nextprime {"n": "12345"}     next prime + certificate
   GET  /bounds?x_max=10000000        RH error-bar audit
 
-Run:  python -m zetaedge.serve --port 8788
+Run:  python -m zeta_audit.serve --port 8788
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def zeros_upto(t: float) -> list[float]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "zetaedge/0.2"
+    server_version = "zeta_audit/0.2"
 
     def _send(self, code: int, payload: dict) -> None:
         body = json.dumps(payload, indent=2, default=str).encode()
@@ -107,7 +107,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def serve(port: int = 8788, host: str = "127.0.0.1"):
     httpd = ThreadingHTTPServer((host, port), Handler)
-    print(f"zetaedge listening on http://{host}:{port}")
+    print(f"zeta_audit listening on http://{host}:{port}")
     httpd.serve_forever()
 
 

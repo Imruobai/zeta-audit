@@ -36,7 +36,7 @@ def main() -> int:
     lines: list[str] = []
     A = lines.append
 
-    A("# zeta-edge — measured results")
+    A("# zeta-audit — measured results")
     A("")
     A(f"Generated from `out/*.json` on the machine that ran `pipeline.py` "
       f"(total pipeline wall clock **{s['total_elapsed_s']} s**).")

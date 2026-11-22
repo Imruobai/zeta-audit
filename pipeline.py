@@ -21,15 +21,15 @@ import os
 import time
 from pathlib import Path
 
-from zetaedge.bounds import gap_audit, pi_error_audit
-from zetaedge.certify import audit_certifier, certificate, count_zeros_strip, next_prime, verify_strip
-from zetaedge.explicit import audit_pi_bound, audit_psi_bound, zero_sum_convergence
-from zetaedge.plot import Z_chart, error_chart, zeros_chart
-from zetaedge.transparency import CertificateLog, verify_inclusion
-from zetaedge.parallel import estimate_sequential, sweep_parallel
-from zetaedge.primality import rh_bases, rh_base_bound
-from zetaedge.zeta import Z, n_zeros_asymptotic, theta
-from zetaedge.zeros import audit, check_against_known, find_zeros
+from zeta_audit.bounds import gap_audit, pi_error_audit
+from zeta_audit.certify import audit_certifier, certificate, count_zeros_strip, next_prime, verify_strip
+from zeta_audit.explicit import audit_pi_bound, audit_psi_bound, zero_sum_convergence
+from zeta_audit.plot import Z_chart, error_chart, zeros_chart
+from zeta_audit.transparency import CertificateLog, verify_inclusion
+from zeta_audit.parallel import estimate_sequential, sweep_parallel
+from zeta_audit.primality import rh_bases, rh_base_bound
+from zeta_audit.zeta import Z, n_zeros_asymptotic, theta
+from zeta_audit.zeros import audit, check_against_known, find_zeros
 
 OUT = Path(__file__).with_name("out")
 
@@ -254,7 +254,7 @@ def main(argv=None) -> int:
 
     # --------------------------------------------- product surface: rhprime
     t0 = time.time()
-    from zetaedge.primegen import batch as attest_batch
+    from zeta_audit.primegen import batch as attest_batch
 
     att = attest_batch((128, 256, 512), log_path=OUT / "ct_primegen.log", out_dir=None,
                        reset_log=True)
@@ -279,7 +279,7 @@ def main(argv=None) -> int:
 
     # ------------------------------------------------- mpmath cross-check
     t0 = time.time()
-    from zetaedge.crosscheck import cross_check
+    from zeta_audit.crosscheck import cross_check
 
     cc = cross_check(count=50)
     dump("crosscheck.json", cc)
@@ -295,7 +295,7 @@ def main(argv=None) -> int:
 
     # -------------------------------------- the table audit tool on our own output
     t0 = time.time()
-    from zetaedge.audit_table import audit as audit_table, load_table as load_zero_table
+    from zeta_audit.audit_table import audit as audit_table, load_table as load_zero_table
 
     audit_path = OUT / "self_audit_input.txt"
     audit_path.write_text("\n".join("%.15f" % g for g in gammas), encoding="utf-8")

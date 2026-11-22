@@ -1,6 +1,6 @@
 # Launch copy
 
-Copy-paste material for introducing `zeta-edge`. Every number here is copied from
+Copy-paste material for introducing `zeta-audit`. Every number here is copied from
 `REPORT.md`, which is generated from artifacts — refresh both before publishing
 (`python pipeline.py && python report.py`), and do not type a figure that is not in there.
 

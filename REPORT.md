@@ -1,6 +1,6 @@
-# zeta-edge — measured results
+# zeta-audit — measured results
 
-Generated from `out/*.json` on the machine that ran `pipeline.py` (total pipeline wall clock **272.7 s**).
+Generated from `out/*.json` on the machine that ran `pipeline.py` (total pipeline wall clock **274.3 s**).
 
 Third-party verifier: exit code **0** (all checks passed), transcript in `out/verify_output.txt`.
 
@@ -168,8 +168,8 @@ sweep actually is, which is why no compliance regime would swap MR for it.
 
 | bits | bases swept | verdict | wall clock | single-thread rate | sequential est. | speedup |
 | --- | --- | --- | --- | --- | --- | --- |
-| 512 | 22,124 | prime | 1.4 s | 2,834 modexp/s | 8 s | 5.8× |
-| 1024 | 79,016 | prime | 10.1 s | 517 modexp/s | 153 s | 15.1× |
+| 512 | 22,157 | prime | 1.4 s | 2,782 modexp/s | 8 s | 5.7× |
+| 1024 | 78,979 | prime | 10.1 s | 523 modexp/s | 151 s | 15.0× |
 
 *Sequential estimate is measured, not assumed: the single-thread rate is timed on a
 sample and multiplied by the base count.*
@@ -181,11 +181,11 @@ with a scan record, a provable gap ceiling, a base list, and a chained log entry
 
 | requested bits | actual bits | gap from start | candidates scanned | bases | seq est. |
 | --- | --- | --- | --- | --- | --- |
-| 128 | 128 | +10 | 6 | 1,818 | 0.036 s |
-| 256 | 256 | +82 | 42 | 6,305 | 0.452 s |
-| 512 | 512 | +258 | 130 | 22,192 | 7.4 s |
+| 128 | 128 | +98 | 50 | 1,831 | 0.035 s |
+| 256 | 256 | +262 | 132 | 6,299 | 0.447 s |
+| 512 | 512 | +124 | 63 | 22,191 | 8.9 s |
 
-Attestation log chain ok: **True**, Merkle root `11778cd9a6e9ccf04db1c3c7f15e2564…`
+Attestation log chain ok: **True**, Merkle root `24131d10325cf8f53637fcdea07ebde1…`
 
 ## 7. Hash-chained log and inclusion proofs
 
@@ -195,8 +195,8 @@ the generated certificates so the tamper-detection claim is tested rather than s
 
 - entries: **6**
 - chain verifies: **True**
-- Merkle root: `d86ef0a507cdc840aa9ec78e3f53fefd7a3c2e917ead87a7d6623ffe513febf0`
-- head: `41ffde23723f907031653ddd4e64f1a9…`
+- Merkle root: `258f7ae0ecacf78f139fb9adaa5127778cc41d6090c5f922997dc2b969f4848d`
+- head: `03cacb93df7d24d5149592d85ebb943a…`
 - sample inclusion proof (entry 3): **verified**
 
 Independent re-check. This transcript is `out/verify_output.txt`, written by
@@ -204,15 +204,15 @@ Independent re-check. This transcript is `out/verify_output.txt`, written by
 from `n`, with no access to the producer's state:
 
 ```
-[chain] ok=True entries=6 head=41ffde23723f9070...
+[chain] ok=True entries=6 head=03cacb93df7d24d5...
 [anchor] merkle_root match=True head match=True
 [inclusion] seq=3 verified=True
-[cert 0]   64 bits  534 bases re-tested, no witness
-[cert 1]  128 bits  1829 bases re-tested, no witness
-[cert 2]  192 bits  3764 bases re-tested, no witness
-[cert 3]  256 bits  6293 bases re-tested, no witness
-[cert 4]  384 bits  13129 bases re-tested, no witness
-[cert 5]  512 bits  22148 bases re-tested, no witness
+[cert 0]   64 bits  536 bases re-tested, no witness
+[cert 1]  128 bits  1812 bases re-tested, no witness
+[cert 2]  192 bits  3742 bases re-tested, no witness
+[cert 3]  256 bits  6304 bases re-tested, no witness
+[cert 4]  384 bits  13144 bases re-tested, no witness
+[cert 5]  512 bits  22136 bases re-tested, no witness
 [zeros] 29 zeros <= 100, max |dgamma| vs published = 8.72e-12
 
 ALL CHECKS PASSED - the log, the anchor, and every certificate are reproducible

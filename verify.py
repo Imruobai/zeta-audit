@@ -26,10 +26,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from zetaedge.certify import certificate
-from zetaedge.primality import _mr_witness, rh_bases
-from zetaedge.transparency import CertificateLog, verify_inclusion
-from zetaedge.zeros import KNOWN_FIRST_ZEROS, check_against_known, find_zeros
+from zeta_audit.certify import certificate
+from zeta_audit.primality import _mr_witness, rh_bases
+from zeta_audit.transparency import CertificateLog, verify_inclusion
+from zeta_audit.zeros import KNOWN_FIRST_ZEROS, check_against_known, find_zeros
 
 
 def check_certificate_record(rec: dict) -> tuple[bool, str]:

@@ -1,9 +1,9 @@
-# zeta-edge
+# zeta-audit
 
 **Point it at a zero table someone gave you and get a verdict.**
 
 ```bash
-pip install "zetaedge[crosscheck]"
+pip install "zeta-audit[crosscheck]"
 zeta-audit zeros.txt
 ```
 
@@ -131,8 +131,8 @@ explicit   ψ(10⁵): error −31.79 from 50 zeros → −0.27 from 600 zeros
 ## Install
 
 ```bash
-pip install zetaedge                  # numpy only
-pip install "zetaedge[crosscheck]"    # + mpmath, enables the independent checks
+pip install zeta-audit                 # numpy only
+pip install "zeta-audit[crosscheck]"    # + mpmath, enables the independent checks
 ```
 
 Python ≥ 3.10. Without mpmath the independent and windowed checks report **skipped**, not
@@ -145,15 +145,15 @@ zeta-audit zeros.txt                       # the main entry point
 zeta-audit zeros.txt --windows 5           # more independent windows
 zeta-audit zeros.txt --json r.json         # full report
 
-python -m zetaedge zeros --t-max 1000      # find zeros with residuals
-python -m zetaedge strip --t-max 600       # argument-principle verification
-python -m zetaedge bounds --x-max 10000000 # error-bar audits, each hypothesis labelled
-python -m zetaedge crosscheck              # compare against mpmath
-python -m zetaedge.serve --port 8788       # stdlib HTTP wrapper
+python -m zeta_audit zeros --t-max 1000      # find zeros with residuals
+python -m zeta_audit strip --t-max 600       # argument-principle verification
+python -m zeta_audit bounds --x-max 10000000 # error-bar audits, each hypothesis labelled
+python -m zeta_audit crosscheck              # compare against mpmath
+python -m zeta_audit.serve --port 8788       # stdlib HTTP wrapper
 ```
 
 ```python
-from zetaedge import load_table, audit_zero_table
+from zeta_audit import load_table, audit_zero_table
 
 report = audit_zero_table(load_table("zeros.txt"), windows=3)
 if not report["all_ok"]:
@@ -179,7 +179,7 @@ file untouched. If yours does not parse, that is a bug report worth sending.
 ## Layout
 
 ```
-zetaedge/
+zeta_audit/
   audit_table.py   *** the table auditor (CLI: zeta-audit) ***
   crosscheck.py    mpmath cross-validation + nzeros windows (optional dependency)
   zeta.py          ζ(s), θ(t), Hardy Z (dependency-free floats)
@@ -197,6 +197,8 @@ data/odlyzko_zeros1.txt   the 100k reference table the audit is tested against
 pipeline.py / report.py / verify.py / tests/run_all.py
 docs/COMPARISON.md  how this compares to existing work, including where it loses
 docs/LAUNCH_COPY.md description, announcement posts, Q&A for introducing the repo
+docs/DESCRIPTION.md repo About field, PyPI summary, long description, topics
+docs/PYPI_README.md the PyPI project page (generated from DESCRIPTION.md section 3)
 ```
 
 ## Limits

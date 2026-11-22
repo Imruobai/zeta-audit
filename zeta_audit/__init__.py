@@ -26,16 +26,16 @@ from .transparency import CertificateLog, merkle_root, entry_hash, verify_inclus
 from .primegen import attest, batch as attest_batch
 from .parallel import sweep_parallel, estimate_sequential
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 
 def __getattr__(name):
     """Lazy re-exports for the modules that are also runnable as ``-m`` entry points.
 
     Importing ``audit_table``/``crosscheck`` eagerly here makes
-    ``python -m zetaedge.audit_table`` emit a RuntimeWarning (runpy sees the module
+    ``python -m zeta_audit.audit_table`` emit a RuntimeWarning (runpy sees the module
     already imported before it executes it). Deferring them to first access keeps
-    ``zetaedge.audit_zero_table`` working as public API and the CLI clean.
+    ``zeta_audit.audit_zero_table`` working as public API and the CLI clean.
     """
     if name in ("audit_zero_table", "load_table"):
         from . import audit_table

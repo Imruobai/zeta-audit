@@ -1,12 +1,12 @@
-[chain] ok=True entries=6 head=41ffde23723f9070...
+[chain] ok=True entries=6 head=03cacb93df7d24d5...
 [anchor] merkle_root match=True head match=True
 [inclusion] seq=3 verified=True
-[cert 0]   64 bits  534 bases re-tested, no witness
-[cert 1]  128 bits  1829 bases re-tested, no witness
-[cert 2]  192 bits  3764 bases re-tested, no witness
-[cert 3]  256 bits  6293 bases re-tested, no witness
-[cert 4]  384 bits  13129 bases re-tested, no witness
-[cert 5]  512 bits  22148 bases re-tested, no witness
+[cert 0]   64 bits  536 bases re-tested, no witness
+[cert 1]  128 bits  1812 bases re-tested, no witness
+[cert 2]  192 bits  3742 bases re-tested, no witness
+[cert 3]  256 bits  6304 bases re-tested, no witness
+[cert 4]  384 bits  13144 bases re-tested, no witness
+[cert 5]  512 bits  22136 bases re-tested, no witness
 [zeros] 29 zeros <= 100, max |dgamma| vs published = 8.72e-12
 
 ALL CHECKS PASSED - the log, the anchor, and every certificate are reproducible

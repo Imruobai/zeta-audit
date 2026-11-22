@@ -12,9 +12,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from zetaedge.bounds import cramer_gap_ceiling, gap_audit, pi_error_audit
-from zetaedge.certify import certificate, count_zeros_strip, next_prime, verify_strip
-from zetaedge.explicit import (
+from zeta_audit.bounds import cramer_gap_ceiling, gap_audit, pi_error_audit
+from zeta_audit.certify import certificate, count_zeros_strip, next_prime, verify_strip
+from zeta_audit.explicit import (
     audit_pi_bound,
     audit_psi_bound,
     chebyshev_psi,
@@ -26,9 +26,9 @@ from zetaedge.explicit import (
     psi_explicit,
     zero_sum_convergence,
 )
-from zetaedge.primality import is_prime_13, is_prime_rh, rh_bases, rh_base_bound
-from zetaedge.zeta import Z, n_zeros_asymptotic, theta, zeta, zeta_half
-from zetaedge.zeros import KNOWN_FIRST_ZEROS, check_against_known, find_zeros
+from zeta_audit.primality import is_prime_13, is_prime_rh, rh_bases, rh_base_bound
+from zeta_audit.zeta import Z, n_zeros_asymptotic, theta, zeta, zeta_half
+from zeta_audit.zeros import KNOWN_FIRST_ZEROS, check_against_known, find_zeros
 
 
 CHECKS: list[tuple[str, bool, str]] = []
@@ -171,7 +171,7 @@ def test_next_prime() -> None:
 def test_transparency_log() -> None:
     import tempfile
 
-    from zetaedge.transparency import CertificateLog, entry_hash, merkle_root, verify_inclusion
+    from zeta_audit.transparency import CertificateLog, entry_hash, merkle_root, verify_inclusion
 
     with tempfile.TemporaryDirectory() as td:
         log = CertificateLog(Path(td) / "ct.log")
@@ -194,7 +194,7 @@ def test_transparency_log() -> None:
 
 
 def test_parallel_proof() -> None:
-    from zetaedge.parallel import estimate_sequential, sweep_parallel
+    from zeta_audit.parallel import estimate_sequential, sweep_parallel
 
     p = 2 ** 89 - 1
     seq = sweep_parallel(p, workers=1)
@@ -212,7 +212,7 @@ def test_parallel_proof() -> None:
 
 
 def test_primegen_attestation() -> None:
-    from zetaedge.primegen import attest
+    from zeta_audit.primegen import attest
 
     a = attest(bits=128, measure_sequential=False)
     check("attestation returns a prime verdict", a.verdict == "prime",
@@ -233,7 +233,7 @@ def test_base_cache_consistency() -> None:
     """
     import random
 
-    from zetaedge.primality import _primes_upto_float
+    from zeta_audit.primality import _primes_upto_float
 
     rng = random.Random(1234)
     bad = []
@@ -258,7 +258,7 @@ def test_theta_consistency() -> None:
     corrupts N(T) = θ(T)/π + 1 and the Z chart, so it is tested explicitly:
     θ(0)=0, θ monotone, and the quadrature/Stirling switch continuous at t=20.
     """
-    from zetaedge.zeta import theta_small_t, _digamma_complex
+    from zeta_audit.zeta import theta_small_t, _digamma_complex
 
     check("theta(0) = 0", abs(theta(0.0)) < 1e-12, f"{theta(0.0):.2e}")
     # θ dips to its minimum near t≈6.3 (θ' changes sign there), then rises forever,
@@ -281,7 +281,7 @@ def test_theta_consistency() -> None:
 
 def test_crosscheck_against_mpmath() -> None:
     """The only non-circular check in this repo: an independent implementation agrees."""
-    from zetaedge.crosscheck import HAS_MPMATH, cross_check
+    from zeta_audit.crosscheck import HAS_MPMATH, cross_check
 
     if not HAS_MPMATH:
         check("mpmath cross-check", False, "mpmath not installed: pip install mpmath")
@@ -301,7 +301,7 @@ def test_audit_table() -> None:
     """The auditing tool must accept a good table and reject a tampered one."""
     import tempfile
 
-    from zetaedge.audit_table import audit, load_table
+    from zeta_audit.audit_table import audit, load_table
 
     with tempfile.TemporaryDirectory() as td:
         zs = find_zeros(t_max=120.0, t_min=0.5, step=0.25)
@@ -346,8 +346,8 @@ def test_audit_detects_missing_zero() -> None:
     """
     import tempfile
 
-    from zetaedge.audit_table import audit, load_table
-    from zetaedge.crosscheck import HAS_MPMATH
+    from zeta_audit.audit_table import audit, load_table
+    from zeta_audit.crosscheck import HAS_MPMATH
 
     if not HAS_MPMATH:
         check("audit catches a missing zero", False, "mpmath required for this check")

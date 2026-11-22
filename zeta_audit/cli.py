@@ -1,4 +1,4 @@
-"""Command line interface: `python -m zetaedge <command>`."""
+"""Command line interface: `python -m zeta_audit <command>`."""
 
 from __future__ import annotations
 
@@ -113,10 +113,10 @@ def cmd_crosscheck(a) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="zetaedge",
+        prog="zeta_audit",
         description="zero verification (unconditional) and labelled conditional prime certificates",
     )
-    p.add_argument("--version", action="version", version=f"zetaedge {__version__}")
+    p.add_argument("--version", action="version", version=f"zeta_audit {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     z = sub.add_parser("zeros", help="find and audit zeros on the critical line")

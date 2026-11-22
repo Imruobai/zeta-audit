@@ -89,7 +89,7 @@ def cross_check(count: int = 50, sample_every: int = 0, t_max: float | None = No
     # independent Z comparison at a handful of points
     z_checks = []
     for t in (14.134725141734693, 100.0, 1000.0, 5000.0):
-        z_checks.append({"t": t, "ours": __import__("zetaedge").Z(t), "mpmath": mpmath_Z(t)})
+        z_checks.append({"t": t, "ours": __import__("zeta_audit").Z(t), "mpmath": mpmath_Z(t)})
 
     return {
         "available": True,
