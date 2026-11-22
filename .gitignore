@@ -29,5 +29,12 @@ out/*
 
 # Internal scratch
 docs/_check.py
+_scratch/
+
+# The 1.8 MB reference table IS committed on purpose: the audit and its negative control
+# are only meaningful against a real external file, and `pipeline.py` skips the external
+# section when it is absent rather than pretending. Its audit JSON is regenerated.
+data/*.json
+!data/odlyzko_zeros1.txt
 # scratch inputs for manual testing
 _scratch/

@@ -33,7 +33,7 @@ from pathlib import Path
 
 # Read the version from the package without importing it (avoids a circular import:
 # __init__ imports this module for its public ``audit_zero_table``).
-_TOOL_VERSION = "0.3.0"
+_TOOL_VERSION = "0.3.1"
 
 
 # --------------------------------------------------------------------------- #
@@ -210,44 +210,107 @@ def check_independent(t: Table, sample: int = 5) -> dict:
     }
 
 
-def check_completeness(t: Table, strip: bool = False) -> dict:
-    """Is the count consistent with the smooth zero count, and is any gap detectable?"""
+def check_completeness(t: Table, windows: int = 3, window_rows: int = 200) -> dict:
+    """Is the count consistent, and is any single zero missing?
+
+    Two checks of very different strength, reported separately because conflating them
+    would be dishonest:
+
+    * **sanity** — ``|count − (θ(T)/π+1)| < 3``. Cheap and *weak*: S(T) is O(log T) with a
+      non-small constant, so a table can be off by a zero or two and still pass. Measured:
+      removing one row from Odlyzko's 100k table leaves |S(T)| = 0.4.
+    * **windowed count** — pick a few windows and count the zeros inside from ζ alone, via
+      an independent implementation (mpmath's ``nzeros``, Turing's method), then compare
+      with the rows the table lists there. Independent of the table, and it does catch a
+      hole.
+
+    Two implementation notes that were learned the hard way and are load-bearing:
+
+    1. **Two contour-based attempts were abandoned.** The argument principle works but needs
+       O(|Z|/step) evaluations of ζ; at T ≈ 4·10⁴ one window is ~1.5·10⁴ points × 6 ms, and
+       the tool stopped being usable. ``nzeros`` does the same job in 0.1 s.
+    2. **Never evaluate ``nzeros`` exactly at an ordinate.** Floating-point rounding makes
+       ``nzeros(γ_k)`` return k or k−1 unpredictably (measured: γ₃ gives 2, not 3). The
+       count is taken at points strictly between ordinates.
+
+    A third attempt, local gap statistics, was also abandoned: with Gaussian-unitary
+    spacing ~7% of legitimate gaps exceed 2× their local median, so it flags thousands of
+    innocent rows while a real hole is indistinguishable from ordinary scatter.
+    """
     from .zeta import n_zeros_asymptotic
 
     if t.count == 0:
         return {"available": False, "reason": "empty table"}
     T = t.ordinates[-1]
     smooth = n_zeros_asymptotic(T)
-    # S(T) is O(log T); a table whose count differs from the smooth count by more than
-    # a few units is either truncated or has a structural problem.
     dev = t.count - smooth
-    out = {
+
+    ords = t.ordinates
+    picks = []
+    if len(ords) > window_rows * 2:
+        for k in range(windows):
+            start = int(len(ords) * (k + 1) / (windows + 1)) - window_rows // 2
+            start = max(1, min(start, len(ords) - window_rows - 2))
+            picks.append(start)
+
+    try:
+        from .crosscheck import HAS_MPMATH
+    except Exception:  # noqa: BLE001
+        HAS_MPMATH = False
+
+    rows: list[dict] = []
+    if HAS_MPMATH and picks:
+        import mpmath
+
+        mpmath.mp.dps = 20
+        with mpmath.workdps(20):
+            for start in picks:
+                # Both ends are table ordinates; evaluate strictly inside them so no
+                # count is taken on a zero (see note 2 above).
+                lo = (ords[start - 1] + ords[start]) / 2.0
+                hi = (ords[start + window_rows - 1] + ords[start + window_rows]) / 2.0
+                inside = int(mpmath.nzeros(hi)) - int(mpmath.nzeros(lo))
+                rows.append({
+                    "rows": f"{start + 1}..{start + window_rows}",
+                    "t_lo_mid": lo,
+                    "t_hi_mid": hi,
+                    "table_zeros_inside": window_rows,
+                    "independent_count": inside,
+                    "agree": inside == window_rows,
+                })
+
+    windows_ok = all(r["agree"] for r in rows) if rows else None
+    ok = abs(dev) < 3.0 and (windows_ok is not False)
+    return {
+        "available": True,
         "T": T,
         "table_count": t.count,
         "smooth_N_T": smooth,
         "S_T_implied": dev,
-        "ok": abs(dev) < 3.0,
-        "note": "S(T) = N(T) - smooth is O(log T); |S| >= 3 at modest T is worth a look",
+        "sanity_ok": abs(dev) < 3.0,
+        "sanity_note": "weak: does not detect a small number of missing zeros",
+        "windows": rows,
+        "windows_ok": windows_ok,
+        "window_method": "mpmath.nzeros (Turing) at midpoints between ordinates"
+        if HAS_MPMATH else None,
+        "ok": bool(ok),
+        "note": (
+            "ok requires the weak sanity count AND, when mpmath is available, every "
+            "windowed count to agree. Without mpmath only the weak check runs, and "
+            "windows_ok is null rather than a false pass."
+        ),
     }
-    if strip:
-        from .certify import count_zeros_strip
-
-        s = count_zeros_strip(T)
-        out["argument_principle_count"] = s["zeros_in_strip"]
-        out["strip_agrees_with_table"] = abs(s["zeros_in_strip"] - t.count) <= 1
-        out["strip_resolution_error"] = s["resolution_error"]
-    return out
 
 
 # --------------------------------------------------------------------------- #
-def audit(t: Table, strip: bool = False) -> dict:
+def audit(t: Table, windows: int = 3) -> dict:
     res = {
         "tool": f"zetaedge {_TOOL_VERSION}",
         "table": t.path,
         "structure": check_structure(t),
         "residuals": check_residuals(t),
         "independent": check_independent(t),
-        "completeness": check_completeness(t, strip=strip),
+        "completeness": check_completeness(t, windows=windows),
     }
     checks = [v for k, v in res.items() if isinstance(v, dict) and "ok" in v]
     res["all_ok"] = all(c["ok"] for c in checks) if checks else False
@@ -260,8 +323,8 @@ def main(argv=None) -> int:
         description="audit an external zero table (structure, residuals, independence, completeness)",
     )
     ap.add_argument("table", help="path to the zero table file")
-    ap.add_argument("--strip", action="store_true",
-                    help="also run the argument-principle count (slow for large T)")
+    ap.add_argument("--windows", type=int, default=3,
+                    help="number of windows to test with the argument-principle count (default 3)")
     ap.add_argument("--json", default="", help="write the full report here")
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args(argv)
@@ -271,7 +334,7 @@ def main(argv=None) -> int:
         print(f"{a.table}: no ordinates parsed", file=sys.stderr)
         return 1
 
-    res = audit(t, strip=a.strip)
+    res = audit(t, windows=a.windows)
 
     if not a.quiet:
         s = res["structure"]
@@ -296,9 +359,13 @@ def main(argv=None) -> int:
         c = res["completeness"]
         if c.get("available", True) and "table_count" in c:
             print(f"completeness: count={c['table_count']:,} vs smooth N(T)={c['smooth_N_T']:.3f}"
-                  f"  S(T) implied = {c['S_T_implied']:+.3f}")
-            if "argument_principle_count" in c:
-                print(f"              argument-principle count = {c['argument_principle_count']}")
+                  f"  S(T) implied = {c['S_T_implied']:+.3f}  (weak sanity check)")
+            for w in c.get("windows", []):
+                flag = "ok" if w["agree"] else "MISMATCH"
+                print(f"              window rows {w['rows']}: table {w['table_zeros_inside']}"
+                      f" vs independent count {w['independent_count']}  [{flag}]")
+            if c.get("windows_ok") is None:
+                print("              windowed count: skipped (mpmath not installed)")
         else:
             print(f"completeness: skipped ({c.get('reason')})")
         print()

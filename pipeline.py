@@ -295,13 +295,11 @@ def main(argv=None) -> int:
 
     # -------------------------------------- the table audit tool on our own output
     t0 = time.time()
-    from zetaedge.audit_table import audit as audit_table
+    from zetaedge.audit_table import audit as audit_table, load_table as load_zero_table
 
     audit_path = OUT / "self_audit_input.txt"
     audit_path.write_text("\n".join("%.15f" % g for g in gammas), encoding="utf-8")
-    self_audit = audit_table(
-        __import__("zetaedge.audit_table", fromlist=["load_table"]).load_table(audit_path)
-    )
+    self_audit = audit_table(load_zero_table(audit_path))
     dump("self_audit.json", self_audit)
     print(f"  zeta-audit on our own table: all_ok={self_audit['all_ok']}")
     summary["table_audit_demo"] = {
@@ -312,8 +310,52 @@ def main(argv=None) -> int:
         "mpmath_max_residual": self_audit["residuals"]["mpmath_max_residual"],
         "independent_max_diff": self_audit["independent"].get("max_abs_diff_vs_mpmath"),
         "S_T_implied": self_audit["completeness"]["S_T_implied"],
+        "windows_ok": self_audit["completeness"].get("windows_ok"),
         "elapsed_s": round(time.time() - t0, 2),
     }
+
+    # ------------------------- the real external table, if it was fetched
+    t0 = time.time()
+    external = Path(__file__).with_name("data") / "odlyzko_zeros1.txt"
+    if external.exists():
+        ext = audit_table(load_zero_table(external), windows=3)
+        dump("odlyzko_audit.json", ext)
+        print(f"  zeta-audit on Odlyzko zeros1 (100k zeros): all_ok={ext['all_ok']}")
+        summary["external_table_audit"] = {
+            "target": "Odlyzko zeros1, 100,000 ordinates up to 74920.8",
+            "sha256": ext["structure"]["sha256"],
+            "count": ext["structure"]["count"],
+            "all_ok": ext["all_ok"],
+            "our_max_residual": ext["residuals"]["our_max_residual"],
+            "mpmath_max_residual": ext["residuals"]["mpmath_max_residual"],
+            "independent_max_diff": ext["independent"].get("max_abs_diff_vs_mpmath"),
+            "S_T_implied": ext["completeness"]["S_T_implied"],
+            "windows_ok": ext["completeness"].get("windows_ok"),
+            "windows": ext["completeness"].get("windows"),
+            "elapsed_s": round(time.time() - t0, 2),
+        }
+
+        # negative control: the same table with one row removed must FAIL
+        holed_lines = external.read_text(encoding="utf-8").splitlines()
+        cut = len(holed_lines) // 2
+        holed = OUT / "odlyzko_zeros1_missing_one.txt"
+        holed.write_text("\n".join(holed_lines[:cut] + holed_lines[cut + 1:]) + "\n",
+                         encoding="utf-8")
+        neg = audit_table(load_zero_table(holed), windows=3)
+        dump("odlyzko_negative_control.json", neg)
+        caught = not neg["all_ok"] and neg["completeness"].get("windows_ok") is False
+        print(f"  negative control (one row removed): detected={caught}")
+        summary["external_negative_control"] = {
+            "target": "out/odlyzko_zeros1_missing_one.txt (row removed mid-table)",
+            "all_ok": neg["all_ok"],
+            "windows_ok": neg["completeness"].get("windows_ok"),
+            "weak_sanity_would_have_passed": abs(neg["completeness"]["S_T_implied"]) < 3.0,
+            "S_T_implied": neg["completeness"]["S_T_implied"],
+            "detected": caught,
+            "windows": neg["completeness"].get("windows"),
+        }
+    else:
+        print("  (data/odlyzko_zeros1.txt absent: external-table audit skipped)")
 
     summary["total_elapsed_s"] = round(time.time() - t_all, 1)
 

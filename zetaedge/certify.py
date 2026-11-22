@@ -33,30 +33,44 @@ RIGHT = 2.0         # right edge: ζ has no zeros for Re s ≥ 1 (classical)
 BOTTOM = 0.5        # below the first zero (γ₁ ≈ 14.13) and above the pole at s=1
 
 
-def _contour(T: float, step: float = 0.01):
-    """Rectangle (RIGHT, BOTTOM) → (RIGHT, T) → (LEFT, T) → (LEFT, BOTTOM) → close.
+def _contour(t_lo: float, t_hi: float, step: float = 0.01):
+    """Rectangle (RIGHT, t_lo) → (RIGHT, t_hi) → (LEFT, t_hi) → (LEFT, t_lo) → close.
 
     The left edge sits at Re = 0.1, *not* 0.5, so the contour never runs through a
-    zero; the bottom edge at Im = 0.5 keeps the pole s = 1 outside the region.
-    Zeros counted are therefore those with 0.1 < Re s < 2 and 0.5 < Im s < T.
+    zero; keeping t_lo above the pole at s = 1 (and any trivial-zero neighbourhood)
+    keeps that outside the region too. Zeros counted are therefore those with
+    0.1 < Re s < 2 and t_lo < Im s < t_hi.
+
+    Generalising the bottom edge is what makes a *window* count possible: the same
+    argument principle, restricted to [t_lo, t_hi], answers "how many zeros are in
+    this interval" without any assumption about where they are.
     """
     pts: list[complex] = []
-    n = max(8, int((T - BOTTOM) / step))
-    for i in range(1, n + 1):                    # right edge, upward
-        pts.append(complex(RIGHT, BOTTOM + (T - BOTTOM) * i / n))
+    n = max(8, int((t_hi - t_lo) / step))
+    for i in range(1, n + 1):                     # right edge, upward
+        pts.append(complex(RIGHT, t_lo + (t_hi - t_lo) * i / n))
     m = max(8, int((RIGHT - LEFT) / step))
     for i in range(1, m + 1):                     # top edge, right to left
-        pts.append(complex(RIGHT - (RIGHT - LEFT) * i / m, T))
+        pts.append(complex(RIGHT - (RIGHT - LEFT) * i / m, t_hi))
     for i in range(1, n + 1):                     # left edge, downward
-        pts.append(complex(LEFT, T - (T - BOTTOM) * i / n))
+        pts.append(complex(LEFT, t_hi - (t_hi - t_lo) * i / n))
     for i in range(1, m + 1):                     # bottom edge, back to start
-        pts.append(complex(LEFT + (RIGHT - LEFT) * i / m, BOTTOM))
+        pts.append(complex(LEFT + (RIGHT - LEFT) * i / m, t_lo))
     return pts
 
 
-def count_zeros_strip(T: float, step: float = 0.01) -> dict:
-    """Δarg ζ / 2π around the rectangle = #zeros inside (argument principle)."""
-    pts = _contour(T, step)
+def count_zeros_window(t_lo: float, t_hi: float, step: float = 0.01) -> dict:
+    """Zeros with 0.1 < Re s < 2 and t_lo < Im s < t_hi, by the argument principle.
+
+    This count does not look at any table: it depends only on ζ. That is what makes it
+    usable as a completeness oracle for an external table — compare it with the number
+    of rows the table lists inside the same window, and a missing ordinate shows up as a
+    count mismatch rather than as a subtle gap statistic.
+
+    ``resolution_error`` is |raw_argument_turns - rounded|; if it is not tiny, the
+    contour step is too coarse for this window and the count is not trustworthy.
+    """
+    pts = _contour(t_lo, t_hi, step)
     prev = zeta(pts[0])
     total = 0.0
     for p in pts[1:]:
@@ -64,18 +78,33 @@ def count_zeros_strip(T: float, step: float = 0.01) -> dict:
         total += math.atan2(cur.imag * prev.real - cur.real * prev.imag,
                             cur.real * prev.real + cur.imag * prev.imag)
         prev = cur
-    cur = zeta(pts[0])                            # close the contour
+    cur = zeta(pts[0])
     total += math.atan2(cur.imag * prev.real - cur.real * prev.imag,
                         cur.real * prev.real + cur.imag * prev.imag)
     raw = total / TWO_PI
     count = int(round(raw))
     return {
+        "t_lo": t_lo,
+        "t_hi": t_hi,
+        "step": step,
+        "zeros_in_window": count,
+        "raw_argument_turns": raw,
+        "resolution_error": abs(raw - count),
+        "expected_density": (theta(t_hi) - theta(t_lo)) / math.pi,
+    }
+
+
+def count_zeros_strip(T: float, step: float = 0.01) -> dict:
+    """Δarg ζ / 2π around the rectangle = #zeros inside (argument principle)."""
+    w = count_zeros_window(BOTTOM, T, step)
+    raw = w["raw_argument_turns"]
+    return {
         "T": T,
         "step": step,
-        "contour_points": len(pts),
+        "contour_points": 0,
         "raw_argument_turns": raw,
-        "zeros_in_strip": count,
-        "resolution_error": abs(raw - count),
+        "zeros_in_strip": w["zeros_in_window"],
+        "resolution_error": w["resolution_error"],
         "smooth_N_T": theta(T) / math.pi + 1.0,
         "von_mangoldt_gap": abs(raw - (theta(T) / math.pi + 1.0)),
     }

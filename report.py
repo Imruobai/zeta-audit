@@ -98,21 +98,50 @@ def main() -> int:
         A("is internal consistency.")
         A("")
 
-    A("## 1c. The table-audit tool, run on this repo's own output")
+    A("## 1c. The table-audit tool on an external table, and on a broken one")
     A("")
-    ta = s.get("table_audit_demo") or {}
-    if ta:
-        A("`zeta-audit` is the repo's practical entry point: point it at an opaque zero file")
-        A("and get a verdict. Running it on our own table is the honest smoke test — if it")
-        A("fails on output we produced, it is worthless on someone else's.")
+    ext = s.get("external_table_audit") or {}
+    neg = s.get("external_negative_control") or {}
+    if ext:
+        A("`zeta-audit` is the repo's practical entry point. Running it on a table this repo")
+        A("did not produce is the only way to know it works on real data, so the pipeline")
+        A("does exactly that on Odlyzko's `zeros1` (100,000 ordinates up to 74920.8) and then")
+        A("on the same file with one row deleted.")
         A("")
-        A(f"- target: `{ta.get('target')}`")
-        A(f"- all checks passed: **{ta.get('all_ok')}**")
-        A(f"- structural: {ta.get('structure_ok')}")
-        A(f"- our max residual: {ta.get('our_max_residual'):.2e}")
-        A(f"- mpmath max residual: {ta.get('mpmath_max_residual'):.2e}")
-        A(f"- independent max diff: {ta.get('independent_max_diff'):.2e}")
-        A(f"- implied S(T): {ta.get('S_T_implied'):+.3f}")
+        A(f"- target: {ext.get('target')}")
+        A(f"- sha256: `{ext.get('sha256')}`")
+        A(f"- rows: {ext.get('count'):,}")
+        A(f"- all checks passed: **{ext.get('all_ok')}**")
+        A(f"- our max residual: {ext.get('our_max_residual'):.2e}")
+        A(f"- mpmath max residual: {ext.get('mpmath_max_residual'):.2e}")
+        A(f"- independent max diff: {ext.get('independent_max_diff'):.2e}")
+        A(f"- implied S(T): {ext.get('S_T_implied'):+.3f} (weak sanity check)")
+        A("")
+        if ext.get("windows"):
+            A("| window rows | table zeros | independent count | agree |")
+            A("| --- | --- | --- | --- |")
+            for w in ext["windows"]:
+                A(f"| {w['rows']} | {w['table_zeros_inside']} | {w['independent_count']} | "
+                  f"{'yes' if w['agree'] else 'NO'} |")
+            A("")
+    if neg:
+        A("**Negative control**: the same table with one row removed mid-file:")
+        A("")
+        A(f"- detected: **{neg.get('detected')}**")
+        A(f"- weak sanity count would have passed: {neg.get('weak_sanity_would_have_passed')} "
+          f"(implied S(T) = {neg.get('S_T_implied'):+.3f})")
+        A("")
+        if neg.get("windows"):
+            A("| window rows | table zeros | independent count | agree |")
+            A("| --- | --- | --- | --- |")
+            for w in neg["windows"]:
+                A(f"| {w['rows']} | {w['table_zeros_inside']} | {w['independent_count']} | "
+                  f"{'yes' if w['agree'] else '**NO**'} |")
+            A("")
+        A("This is the whole argument of the repo in one table: the cheap count does not see a")
+        A("single missing zero, and the independent windowed count does, and it points at the")
+        A("right window. See README 'Three approaches that did not work' for the two other")
+        A("methods that were tried and rejected first.")
         A("")
 
     A("## 2. RH verified in the strip (argument principle)")

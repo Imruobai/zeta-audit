@@ -68,14 +68,63 @@
 <span class="dim2">$</span> <span class="hi">zeta-audit</span> zeros.txt
 
 table       : zeros.txt
-sha256      : 3ea44f34566744954d07d91bd6c59cc275d4f937bc3d3428ea7023d0fb7f4f95
-ordinates   : 138  (14.134725 .. 299.840326)
+sha256      : 3436c916a7878261ac183fd7b9448c9a4736b8bbccf1356874a6ce1788541632
+ordinates   : 100,000  (14.134725 .. 74920.827499)
 structure   : <span class="ok">ok</span>  dupes=0 descents=0 nonpositive=0
-residuals   : our max |zeta| = 2.565e-11 over 40 samples, mpmath 2.430e-11
-independent : max |diff| vs mpmath = 3.936e-12 over 5 zeros
-completeness: count=138 vs smooth N(T)=137.614  S(T) implied = +0.386
+residuals   : our max |zeta| = 3.8e-08 over 40 samples, mpmath 1.2e-08
+independent : max |diff| vs mpmath = 2.7e-10 over 5 zeros
+completeness: count=100,000 vs smooth N(T)=99999.405  S(T) implied = +0.595  (weak)
+              window rows 24901..25100: table 200 vs independent count 200  [<span class="ok">ok</span>]
+              window rows 49901..50100: table 200 vs independent count 200  [<span class="ok">ok</span>]
+              window rows 74901..75100: table 200 vs independent count 200  [<span class="ok">ok</span>]
 
 RESULT: <span class="ok">ALL CHECKS PASSED</span></pre>
+    <p class="lead" style="margin-top:18px">
+      A real run on Odlyzko's <code>zeros1</code>: 100,000 zeros up to height 74,920.8.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The hard case: a <em>missing</em> zero</h2>
+    <p class="lead">Every listed ordinate can be correct while the file silently skips one.
+      So the tool counts from ζ itself, not from the file.</p>
+<pre><span class="dim2">$ # same 100k table, one row deleted at index 50,050</span>
+completeness: count=99,999 vs smooth N(T)=99999.405  S(T) implied = -0.405  (weak)
+              window rows 24900..25099: table 200 vs independent count 200  [<span class="ok">ok</span>]
+              window rows 49900..50099: table 200 vs independent count 201  [<span class="bad">MISMATCH</span>]
+              window rows 74900..75099: table 200 vs independent count 200  [<span class="ok">ok</span>]
+
+RESULT: <span class="bad">FAILED</span></pre>
+    <p class="lead" style="margin-top:18px">
+      It fails, and it names the right window. Note the weak line:
+      <code>|S(T)| = 0.4</code> would have passed — a count-versus-smooth check cannot see a
+      single hole. Only the independent count can.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Three approaches that did not work</h2>
+    <p class="lead">Recorded because they are the obvious ideas, and all three are wrong.</p>
+    <table>
+      <tr><th>attempt</th><th>why it fails</th></tr>
+      <tr><td><strong>local gap statistics</strong></td>
+          <td>under Gaussian-unitary spacing ~7% of legitimate gaps exceed 2× their local
+              median. Measured: 7,155 of 99,999 gaps flagged on a <em>correct</em> table.</td></tr>
+      <tr><td><strong>argument-principle window count</strong></td>
+          <td>correct but needs O(|Z|/step) ζ evaluations per window — ~1.5·10⁴ points × 6 ms
+              at T ≈ 4·10⁴. <code>nzeros</code> does it in 0.1 s.</td></tr>
+      <tr><td><strong><code>nzeros</code> at an ordinate</strong></td>
+          <td>float rounding makes it return <em>k</em> or <em>k−1</em> unpredictably
+              (measured: γ₃ returns 2, not 3). Count strictly between ordinates.</td></tr>
+    </table>
+    <p class="lead" style="margin-top:18px">
+      All three are pinned by <code>test_audit_detects_missing_zero</code>, so a later
+      “simplification” back into one of them fails CI.
+    </p>
   </div>
 </section>
 
@@ -93,7 +142,7 @@ RESULT: <span class="ok">ALL CHECKS PASSED</span></pre>
       <tr><td><strong>independent</strong></td><td>systematically wrong values</td>
           <td>ordinate comparison with mpmath's own zero finder</td></tr>
       <tr><td><strong>completeness</strong></td><td><span class="bad">missing</span> zeros</td>
-          <td>count vs θ(T)/π+1, plus an argument-principle strip count</td></tr>
+          <td>windowed independent count from ζ (mpmath <code>nzeros</code>), not a gap statistic</td></tr>
     </table>
     <p class="lead" style="margin-top:20px">
       Completeness is the one that matters most and that residual checks cannot do: every
@@ -115,8 +164,8 @@ RESULT: <span class="ok">ALL CHECKS PASSED</span></pre>
         <p>mpmath's ζ evaluated at our claimed ordinates</p></div>
     </div>
     <p class="lead" style="margin-top:20px">
-      Without mpmath installed, the independent check reports <em>skipped</em> — it does not
-      silently pass.
+      Without mpmath installed, the independent and windowed checks report <em>skipped</em>
+      — they do not silently pass.
     </p>
   </div>
 </section>

@@ -1,6 +1,6 @@
 # zeta-edge — measured results
 
-Generated from `out/*.json` on the machine that ran `pipeline.py` (total pipeline wall clock **279.4 s**).
+Generated from `out/*.json` on the machine that ran `pipeline.py` (total pipeline wall clock **272.7 s**).
 
 Third-party verifier: exit code **0** (all checks passed), transcript in `out/verify_output.txt`.
 
@@ -43,19 +43,43 @@ Z(t) agreement at fixed points:
 | 1000 | 0.997794637533 | 0.997794637522 | 1.16e-11 |
 | 5000 | -0.804257236354 | -0.804257236353 | 1.39e-12 |
 
-## 1c. The table-audit tool, run on this repo's own output
+## 1c. The table-audit tool on an external table, and on a broken one
 
-`zeta-audit` is the repo's practical entry point: point it at an opaque zero file
-and get a verdict. Running it on our own table is the honest smoke test — if it
-fails on output we produced, it is worthless on someone else's.
+`zeta-audit` is the repo's practical entry point. Running it on a table this repo
+did not produce is the only way to know it works on real data, so the pipeline
+does exactly that on Odlyzko's `zeros1` (100,000 ordinates up to 74920.8) and then
+on the same file with one row deleted.
 
-- target: `out/self_audit_input.txt (our own zero table)`
+- target: Odlyzko zeros1, 100,000 ordinates up to 74920.8
+- sha256: `3436c916a7878261ac183fd7b9448c9a4736b8bbccf1356874a6ce1788541632`
+- rows: 100,000
 - all checks passed: **True**
-- structural: True
-- our max residual: 2.44e-11
-- mpmath max residual: 2.39e-11
-- independent max diff: 3.94e-12
-- implied S(T): +0.552
+- our max residual: 3.82e-08
+- mpmath max residual: 1.25e-08
+- independent max diff: 2.65e-10
+- implied S(T): +0.595 (weak sanity check)
+
+| window rows | table zeros | independent count | agree |
+| --- | --- | --- | --- |
+| 24901..25100 | 200 | 200 | yes |
+| 49901..50100 | 200 | 200 | yes |
+| 74901..75100 | 200 | 200 | yes |
+
+**Negative control**: the same table with one row removed mid-file:
+
+- detected: **True**
+- weak sanity count would have passed: True (implied S(T) = -0.405)
+
+| window rows | table zeros | independent count | agree |
+| --- | --- | --- | --- |
+| 24900..25099 | 200 | 200 | yes |
+| 49900..50099 | 200 | 201 | **NO** |
+| 74900..75099 | 200 | 200 | yes |
+
+This is the whole argument of the repo in one table: the cheap count does not see a
+single missing zero, and the independent windowed count does, and it points at the
+right window. See README 'Three approaches that did not work' for the two other
+methods that were tried and rejected first.
 
 ## 2. RH verified in the strip (argument principle)
 
@@ -144,8 +168,8 @@ sweep actually is, which is why no compliance regime would swap MR for it.
 
 | bits | bases swept | verdict | wall clock | single-thread rate | sequential est. | speedup |
 | --- | --- | --- | --- | --- | --- | --- |
-| 512 | 22,186 | prime | 1.5 s | 2,836 modexp/s | 8 s | 5.4× |
-| 1024 | 78,993 | prime | 11.0 s | 500 modexp/s | 158 s | 14.4× |
+| 512 | 22,124 | prime | 1.4 s | 2,834 modexp/s | 8 s | 5.8× |
+| 1024 | 79,016 | prime | 10.1 s | 517 modexp/s | 153 s | 15.1× |
 
 *Sequential estimate is measured, not assumed: the single-thread rate is timed on a
 sample and multiplied by the base count.*
@@ -157,11 +181,11 @@ with a scan record, a provable gap ceiling, a base list, and a chained log entry
 
 | requested bits | actual bits | gap from start | candidates scanned | bases | seq est. |
 | --- | --- | --- | --- | --- | --- |
-| 128 | 128 | +24 | 13 | 1,824 | 0.040 s |
-| 256 | 256 | +32 | 17 | 6,298 | 0.466 s |
-| 512 | 512 | +234 | 118 | 22,150 | 7.9 s |
+| 128 | 128 | +10 | 6 | 1,818 | 0.036 s |
+| 256 | 256 | +82 | 42 | 6,305 | 0.452 s |
+| 512 | 512 | +258 | 130 | 22,192 | 7.4 s |
 
-Attestation log chain ok: **True**, Merkle root `8f8f7037b106d05b2fee9028403c2793…`
+Attestation log chain ok: **True**, Merkle root `11778cd9a6e9ccf04db1c3c7f15e2564…`
 
 ## 7. Hash-chained log and inclusion proofs
 
@@ -171,8 +195,8 @@ the generated certificates so the tamper-detection claim is tested rather than s
 
 - entries: **6**
 - chain verifies: **True**
-- Merkle root: `a510e4ae583e2803aa3d671afd1472ae47f2c9963b9cc4d408fb492a04b3173d`
-- head: `c0393ecb9912686d32f606db4639e33c…`
+- Merkle root: `d86ef0a507cdc840aa9ec78e3f53fefd7a3c2e917ead87a7d6623ffe513febf0`
+- head: `41ffde23723f907031653ddd4e64f1a9…`
 - sample inclusion proof (entry 3): **verified**
 
 Independent re-check. This transcript is `out/verify_output.txt`, written by
@@ -180,15 +204,15 @@ Independent re-check. This transcript is `out/verify_output.txt`, written by
 from `n`, with no access to the producer's state:
 
 ```
-[chain] ok=True entries=6 head=c0393ecb9912686d...
+[chain] ok=True entries=6 head=41ffde23723f9070...
 [anchor] merkle_root match=True head match=True
 [inclusion] seq=3 verified=True
-[cert 0]   64 bits  531 bases re-tested, no witness
-[cert 1]  128 bits  1822 bases re-tested, no witness
-[cert 2]  192 bits  3760 bases re-tested, no witness
-[cert 3]  256 bits  6299 bases re-tested, no witness
-[cert 4]  384 bits  13103 bases re-tested, no witness
-[cert 5]  512 bits  22173 bases re-tested, no witness
+[cert 0]   64 bits  534 bases re-tested, no witness
+[cert 1]  128 bits  1829 bases re-tested, no witness
+[cert 2]  192 bits  3764 bases re-tested, no witness
+[cert 3]  256 bits  6293 bases re-tested, no witness
+[cert 4]  384 bits  13129 bases re-tested, no witness
+[cert 5]  512 bits  22148 bases re-tested, no witness
 [zeros] 29 zeros <= 100, max |dgamma| vs published = 8.72e-12
 
 ALL CHECKS PASSED - the log, the anchor, and every certificate are reproducible

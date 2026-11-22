@@ -334,6 +334,56 @@ def test_audit_table() -> None:
               f"S(T) implied = {r_fake['completeness']['S_T_implied']:+.1f}")
 
 
+def test_audit_detects_missing_zero() -> None:
+    """The regression that matters: a single dropped row must be caught.
+
+    The weak sanity count does NOT catch it (measured |S(T)| = 0.4 on a 100k table with
+    one row removed), so this test pins the *windowed* count, which is the check that
+    actually works. Two window methods were tried and abandoned first — gap statistics
+    (7% false positives under GUE spacing) and contour counting (O(1.5e4) zeta calls per
+    window at T=4e4, too slow) — so this test also guards against someone "simplifying"
+    the completeness check back into one of those.
+    """
+    import tempfile
+
+    from zetaedge.audit_table import audit, load_table
+    from zetaedge.crosscheck import HAS_MPMATH
+
+    if not HAS_MPMATH:
+        check("audit catches a missing zero", False, "mpmath required for this check")
+        return
+
+    with tempfile.TemporaryDirectory() as td:
+        # 1200 zeros so there are enough windows of 200 rows
+        zs = find_zeros(t_max=2000.0, t_min=0.5, step=0.25)
+        good = [z.gamma for z in zs]
+        if len(good) < 900:
+            check("audit catches a missing zero", False,
+                  f"only {len(good)} zeros available; need more")
+            return
+
+        p_good = Path(td) / "good.txt"
+        p_good.write_text("\n".join("%.16f" % g for g in good), encoding="utf-8")
+        r_good = audit(load_table(p_good), windows=3)
+        check("windowed count passes on a complete table",
+              r_good["completeness"]["windows_ok"] is True,
+              f"{len(r_good['completeness']['windows'])} windows")
+
+        # drop a row inside the middle window
+        mid = len(good) // 2
+        holed = good[:mid] + good[mid + 1:]
+        p_hole = Path(td) / "hole.txt"
+        p_hole.write_text("\n".join("%.16f" % g for g in holed), encoding="utf-8")
+        r_hole = audit(load_table(p_hole), windows=3)
+        check("windowed count detects a single missing zero",
+              not r_hole["all_ok"] and r_hole["completeness"]["windows_ok"] is False,
+              "; ".join(f"{w['rows']}: {w['independent_count']} vs {w['table_zeros_inside']}"
+                        for w in r_hole["completeness"]["windows"]))
+        check("the weak sanity count alone would have missed it",
+              abs(r_hole["completeness"]["S_T_implied"]) < 3.0,
+              f"|S(T)| = {abs(r_hole['completeness']['S_T_implied']):.2f} -> would pass")
+
+
 def main() -> int:
     for fn in (
         test_zeta_values,
@@ -352,6 +402,7 @@ def main() -> int:
         test_base_cache_consistency,
         test_crosscheck_against_mpmath,
         test_audit_table,
+        test_audit_detects_missing_zero,
     ):
         print(f"\n=== {fn.__name__} ===")
         fn()

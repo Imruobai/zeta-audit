@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zetaedge"
-version = "0.3.0"
+version = "0.3.1"
 description = "Audit a Riemann zeta zero table: residuals, independent cross-check, completeness. Plus labelled conditional bounds."
 readme = "README.md"
 requires-python = ">=3.10"

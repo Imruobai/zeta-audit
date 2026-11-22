@@ -1,5 +1,54 @@
 # Release notes
 
+## v0.3.1 — the completeness check actually works
+
+Three earlier attempts at detecting a **missing** zero were wrong. This release replaces all
+of them with one that works, and pins the failure modes so they cannot come back.
+
+### The negative control that exposed it
+
+Odlyzko's `zeros1` (100,000 ordinates, height ≤ 74,920.8, sha256 `3436c916…`) is now
+committed as `data/odlyzko_zeros1.txt`. The pipeline audits it, then audits the same file
+with one row deleted at index 50,050.
+
+| table | weak sanity `\|S(T)\|` | windowed count | verdict |
+| --- | --- | --- | --- |
+| complete | 0.595 | 200/200, 200/200, 200/200 | PASS |
+| one row deleted | **0.405** | 200/200, **201 vs 200**, 200/200 | FAIL, correct window |
+
+The weak check passes on the broken table. That is the finding: a count-versus-smooth
+check cannot see a single hole.
+
+### Rejected approaches (all three, with measurements)
+
+| approach | failure |
+| --- | --- |
+| local gap statistics | ~7% false positives under GUE spacing — 7,155 of 99,999 gaps flagged on a **correct** table |
+| argument-principle window count | correct but O(\|Z\|/step) ζ evaluations: ~1.5·10⁴ points × 6 ms at T ≈ 4·10⁴, unusable |
+| `nzeros` evaluated at an ordinate | float rounding returns *k* or *k−1* unpredictably (γ₃ → 2, not 3) |
+
+The shipped method: mpmath `nzeros` at midpoints **between** ordinates, difference of two
+counts, compared with the table's rows in that window.
+
+### Also changed
+
+- `count_zeros_window(t_lo, t_hi)` added to `certify.py`; `_contour` generalised to an
+  arbitrary height interval. Kept because it is the only *certified-by-ζ* count in the repo,
+  even though `nzeros` is what the fast path uses.
+- `zetaedge/__init__.py` re-exports the CLI-entry-point modules lazily, removing a
+  `runpy` RuntimeWarning from `python -m zetaedge.audit_table`.
+- `--strip` flag replaced by `--windows N`.
+- Tests: 78 → 81. New `test_audit_detects_missing_zero` asserts both that a hole is caught
+  *and* that the weak check would have missed it.
+
+### Known gap
+
+Windowed completeness is **sampled**: 3 windows × 200 rows out of 100,000. A hole outside
+the sampled windows is missed. `--windows` trades time for coverage; nothing here does an
+exhaustive per-window sweep.
+
+---
+
 ## v0.3.0 — the repo becomes a tool
 
 **What changed, and why.** The previous version was a collection of verified computations

@@ -25,10 +25,27 @@ from .certify import (
 from .transparency import CertificateLog, merkle_root, entry_hash, verify_inclusion
 from .primegen import attest, batch as attest_batch
 from .parallel import sweep_parallel, estimate_sequential
-from .audit_table import audit as audit_zero_table, load_table
-from .crosscheck import cross_check
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
+
+
+def __getattr__(name):
+    """Lazy re-exports for the modules that are also runnable as ``-m`` entry points.
+
+    Importing ``audit_table``/``crosscheck`` eagerly here makes
+    ``python -m zetaedge.audit_table`` emit a RuntimeWarning (runpy sees the module
+    already imported before it executes it). Deferring them to first access keeps
+    ``zetaedge.audit_zero_table`` working as public API and the CLI clean.
+    """
+    if name in ("audit_zero_table", "load_table"):
+        from . import audit_table
+
+        return getattr(audit_table, "audit" if name == "audit_zero_table" else "load_table")
+    if name == "cross_check":
+        from .crosscheck import cross_check
+
+        return cross_check
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     "zeta",
