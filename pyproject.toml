@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zetaedge"
+version = "0.3.0"
+description = "Audit a Riemann zeta zero table: residuals, independent cross-check, completeness. Plus labelled conditional bounds."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "zeta-edge" }]
+keywords = ["riemann-hypothesis", "primes", "miller-rabin", "certificate-transparency", "number-theory"]
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+# mpmath is OPTIONAL and used only for the independent cross-check and table auditing.
+# Without it those checks report "skipped" instead of pretending to have run.
+crosscheck = ["mpmath>=1.3"]
+dev = ["mpmath>=1.3"]
+
+[project.scripts]
+zetaedge = "zetaedge.cli:main"
+zeta-audit = "zetaedge.audit_table:main"
+
+[tool.setuptools]
+packages = ["zetaedge"]
+
+[tool.setuptools.package-data]
+zetaedge = ["py.typed"]

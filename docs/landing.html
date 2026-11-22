@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>zeta-edge — audit a Riemann zeta zero table</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111823; --line:#1f2a37; --text:#e6edf3; --dim:#8b949e;
+    --accent:#58a6ff; --good:#3fb950; --warn:#f0883e; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:16px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  code,pre{font-family:ui-monospace,Consolas,Menlo,monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{padding:76px 0 44px;border-bottom:1px solid var(--line)}
+  .kicker{color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+  h1{font-size:clamp(28px,4.2vw,50px);line-height:1.1;margin:14px 0 20px;letter-spacing:-.025em}
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{color:var(--dim);font-size:19px;max-width:70ch}
+  .cta{margin-top:26px}
+  .btn{display:inline-block;padding:12px 20px;border-radius:8px;border:1px solid var(--line);
+       background:var(--panel);color:var(--text);text-decoration:none;font-weight:600;font-size:15px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#04101f}
+  section{padding:54px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:25px;margin:0 0 10px;letter-spacing:-.01em}
+  h3{font-size:17px;margin:0 0 6px}
+  .lead{color:var(--dim);margin:0 0 24px;max-width:76ch}
+  pre{background:#0d1420;border:1px solid var(--line);border-radius:10px;padding:18px;
+      overflow:auto;font-size:13.5px;line-height:1.6}
+  .ok{color:var(--good)} .dim2{color:var(--dim)} .hi{color:var(--accent)} .bad{color:var(--bad)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card p{margin:0;color:var(--dim);font-size:14.5px}
+  .num{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  .neg{border-left:3px solid var(--warn);padding-left:16px;margin:0 0 18px}
+  footer{padding:40px 0 80px;color:var(--dim);font-size:14px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;
+       border:1px solid var(--line);color:var(--dim);margin-right:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">zeta-edge · MIT · numpy only</div>
+    <h1>Point it at a zero table<br>and get a <em>verdict</em>.</h1>
+    <p class="sub">
+      Zero tables are load-bearing “trust me” files. Every numerical use of ζ depends on
+      them, they arrive as opaque data, and there is no standard check step.
+      This is the check step.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#run">See a run</a>
+      <a class="btn" href="#compares">Where this loses</a>
+    </div>
+  </div>
+</header>
+
+<section id="run">
+  <div class="wrap">
+    <h2>One command, four checks</h2>
+<pre><span class="dim2">$ pip install "zetaedge[crosscheck]"</span>
+<span class="dim2">$</span> <span class="hi">zeta-audit</span> zeros.txt
+
+table       : zeros.txt
+sha256      : 3ea44f34566744954d07d91bd6c59cc275d4f937bc3d3428ea7023d0fb7f4f95
+ordinates   : 138  (14.134725 .. 299.840326)
+structure   : <span class="ok">ok</span>  dupes=0 descents=0 nonpositive=0
+residuals   : our max |zeta| = 2.565e-11 over 40 samples, mpmath 2.430e-11
+independent : max |diff| vs mpmath = 3.936e-12 over 5 zeros
+completeness: count=138 vs smooth N(T)=137.614  S(T) implied = +0.386
+
+RESULT: <span class="ok">ALL CHECKS PASSED</span></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Each check catches a different failure</h2>
+    <p class="lead">A table can be wrong in four independent ways. One test cannot catch all
+      of them.</p>
+    <table>
+      <tr><th>check</th><th>catches</th><th>how</th></tr>
+      <tr><td><strong>structure</strong></td><td>swapped, duplicated, descending ordinates</td>
+          <td>ordering and duplicate scan</td></tr>
+      <tr><td><strong>residuals</strong></td><td>fabricated points</td>
+          <td>|ζ(½+iγ)| at sampled ordinates, by <em>two</em> evaluators</td></tr>
+      <tr><td><strong>independent</strong></td><td>systematically wrong values</td>
+          <td>ordinate comparison with mpmath's own zero finder</td></tr>
+      <tr><td><strong>completeness</strong></td><td><span class="bad">missing</span> zeros</td>
+          <td>count vs θ(T)/π+1, plus an argument-principle strip count</td></tr>
+    </table>
+    <p class="lead" style="margin-top:20px">
+      Completeness is the one that matters most and that residual checks cannot do: every
+      listed ordinate can be correct while zeros are absent.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The one non-circular check</h2>
+    <p class="lead">Most tests compare this code to itself. This one does not.</p>
+    <div class="grid">
+      <div class="card"><div class="num">1.4e-11</div><h3>Δγ vs mpmath</h3>
+        <p>first 50 zeros against <code>mpmath.zetazero</code>, an independent implementation</p></div>
+      <div class="card"><div class="num">1.2e-11</div><h3>Δ Z(t)</h3>
+        <p>at t = 1000 against <code>mpmath.siegelz</code></p></div>
+      <div class="card"><div class="num">1.9e-11</div><h3>max |ζ|</h3>
+        <p>mpmath's ζ evaluated at our claimed ordinates</p></div>
+    </div>
+    <p class="lead" style="margin-top:20px">
+      Without mpmath installed, the independent check reports <em>skipped</em> — it does not
+      silently pass.
+    </p>
+  </div>
+</section>
+
+<section id="compares">
+  <div class="wrap">
+    <h2>Where this loses</h2>
+    <p class="lead">The honest version of “how do you compare”, which is mostly unfavourably.</p>
+    <div class="neg"><h3>Arb / python-flint beats us on rigour</h3>
+      <p class="lead" style="margin:0">Arb gives rigorous enclosures and certified zero
+        isolation with Turing's method for the count. Ours is float with a measured ~1e-12
+        agreement. Use Arb when you need proof-grade arithmetic.</p></div>
+    <div class="neg"><h3>mpmath beats us at evaluation</h3>
+      <p class="lead" style="margin:0">Arbitrary precision ζ, θ, and Z, widely reviewed.
+        Ours exists to be dependency-free and to be the thing being cross-checked.</p></div>
+    <div class="neg"><h3>zeta-lab got to two-route verification first</h3>
+      <p class="lead" style="margin:0">Their zero layer pairs Arb isolation with an mpmath
+        bracket check sharing no code with Arb, and documents the completeness caveat
+        carefully. Ours adds an independent argument-principle count but at float grade.</p></div>
+    <div class="neg"><h3>LMFDB and Odlyzko own the tables</h3>
+      <p class="lead" style="margin:0">They publish the data (≈10¹¹ zeros, and the first
+        2,001,052). This audits a file; it does not replace the file.</p></div>
+    <p class="lead" style="margin-top:8px">
+      The gap this fills is narrow: a CLI that takes an opaque table and returns pass/fail.
+      The nearest existing work is a verification component inside a research codebase, not
+      a tool aimed at someone else's file.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Reproduce it</h2>
+<pre><span class="dim2">$ git clone … &amp;&amp; cd zeta-edge</span>
+python tests/run_all.py    <span class="dim2"># 78 checks</span>
+python verify.py           <span class="dim2"># third-party re-check, exit 0 iff all good</span>
+python pipeline.py         <span class="dim2"># regenerate every artifact (~5 min)</span>
+python report.py           <span class="dim2"># REPORT.md from out/*.json only</span></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="tag">MIT</span><span class="tag">numpy only</span><span class="tag">mpmath optional</span><span class="tag">78 checks</span><br><br>
+    The most useful thing you can send is a table that this tool gets wrong.
+  </div>
+</footer>
+
+</body>
+</html>

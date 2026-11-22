@@ -1,0 +1,33 @@
+# Byte-compiled / build artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated artifacts — regenerate with `python pipeline.py`
+#
+# `out/` is mostly regenerable, so it is NOT tracked: dumping a few hundred KB of JSON
+# into history on every run is noise. The exceptions below are committed on purpose,
+# because `verify.py` must work on a fresh clone with no prior pipeline run — that is
+# the whole point of the verifier.
+out/*
+!out/ct.log
+!out/ct_anchor.json
+!out/verify_output.txt
+!out/zeros.svg
+!out/Z_0_100.svg
+!out/explicit_error.svg
+
+# Internal scratch
+docs/_check.py
+# scratch inputs for manual testing
+_scratch/

@@ -1,0 +1,31 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='960' height='540' viewBox='0 0 960 540'>
+<rect width='960' height='540' fill='#0d1117'/>
+<text x='480.0' y='28' fill='#e6edf3' font-size='18' text-anchor='middle' font-family='Consolas,Menlo,monospace'>explicit formula truncation error at x = 10^5</text>
+<line x1='70.0' y1='480' x2='70.0' y2='485' stroke='#30363d'/>
+<text x='70.0' y='500' fill='#8b949e' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>50</text>
+<line x1='930.0' y1='480' x2='930.0' y2='485' stroke='#30363d'/>
+<text x='930.0' y='500' fill='#8b949e' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>600</text>
+<line x1='65' y1='480.0' x2='70' y2='480.0' stroke='#30363d'/>
+<line x1='70' y1='480.0' x2='930' y2='480.0' stroke='#1b2230'/>
+<text x='60' y='484.0' fill='#8b949e' font-size='11' text-anchor='end' font-family='Consolas,Menlo,monospace'>0.01</text>
+<line x1='65' y1='475.5' x2='70' y2='475.5' stroke='#30363d'/>
+<line x1='70' y1='475.5' x2='930' y2='475.5' stroke='#1b2230'/>
+<text x='60' y='479.5' fill='#8b949e' font-size='11' text-anchor='end' font-family='Consolas,Menlo,monospace'>1</text>
+<line x1='65' y1='434.9' x2='70' y2='434.9' stroke='#30363d'/>
+<line x1='70' y1='434.9' x2='930' y2='434.9' stroke='#1b2230'/>
+<text x='60' y='438.9' fill='#8b949e' font-size='11' text-anchor='end' font-family='Consolas,Menlo,monospace'>10</text>
+<rect x='70' y='50' width='860' height='430' fill='none' stroke='#30363d'/>
+<text x='500' y='524' fill='#8b949e' font-size='12' text-anchor='middle' font-family='Consolas,Menlo,monospace'>zeros used</text>
+<text x='18' y='265' fill='#8b949e' font-size='12' text-anchor='middle' font-family='Consolas,Menlo,monospace' transform='rotate(-90 18 265)'>|ψ(x) − ζ-sum| (log)</text>
+<polyline points='70.0,452.9 148.2,458.1 304.5,478.8 617.3,477.2 930.0,480.0' fill='none' stroke='#f0883e' stroke-width='2.0' opacity='1.0'/>
+<circle cx='70.0' cy='336.7' r='4' fill='#f0883e'/>
+<text x='70.0' y='326.7' fill='#e6edf3' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>31.8</text>
+<circle cx='148.2' cy='348.4' r='4' fill='#f0883e'/>
+<text x='148.2' y='338.4' fill='#e6edf3' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>29.2</text>
+<circle cx='304.5' cy='438.6' r='4' fill='#f0883e'/>
+<text x='304.5' y='428.6' fill='#e6edf3' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>9.18</text>
+<circle cx='617.3' cy='422.0' r='4' fill='#f0883e'/>
+<text x='617.3' y='412.0' fill='#e6edf3' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>12.9</text>
+<circle cx='930.0' cy='478.8' r='4' fill='#f0883e'/>
+<text x='930.0' y='468.8' fill='#e6edf3' font-size='11' text-anchor='middle' font-family='Consolas,Menlo,monospace'>0.27</text>
+</svg>
