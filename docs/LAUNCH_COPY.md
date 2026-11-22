@@ -161,7 +161,7 @@ requiring a proof rather than an estimate.
 python pipeline.py     # ~4.5 min; regenerates out/ including the 100k audit
 python report.py       # REPORT.md from out/*.json only
 python verify.py       # exit 0
-python tests/run_all.py  # 83 checks
+python tests/run_all.py  # 84 checks
 ```
 
 Then confirm the numbers you quote appear in `REPORT.md`, and that

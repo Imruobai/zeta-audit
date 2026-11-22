@@ -118,7 +118,7 @@ replace `zeta_half` without touching anything else.
 python pipeline.py     # 鈮?5 minutes: zeros, strip, bounds, certificates, log, proofs
 python report.py       # REPORT.md generated only from out/*.json
 python verify.py       # third-party re-check; exit 0 iff everything reconstructs
-python tests/run_all.py  # 78 checks
+python tests/run_all.py  # 84 checks
 ```
 
 Every number in 搂3 is written by `report.py` from a JSON artifact in `out/`. If the

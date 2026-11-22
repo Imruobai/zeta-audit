@@ -2,6 +2,8 @@
 
 **English** | [中文](README.zh-CN.md)
 
+[![ci](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
+
 **Point it at a zero table someone gave you and get a verdict.**
 
 ```bash
@@ -104,7 +106,7 @@ Most of the stack exists elsewhere in stronger forms. See
 ## Verification: what makes the numbers trustworthy
 
 ```bash
-python tests/run_all.py    # 83 checks
+python tests/run_all.py    # 84 checks
 python verify.py           # third-party re-check of committed artifacts
 python pipeline.py         # regenerate everything (~5 min, includes the 100k audit)
 python report.py           # REPORT.md rendered from artifacts only
@@ -137,8 +139,9 @@ pip install zeta-audit                 # numpy only
 pip install "zeta-audit[crosscheck]"    # + mpmath, enables the independent checks
 ```
 
-Python ≥ 3.10. Without mpmath the independent and windowed checks report **skipped**, not
-passed.
+Python ≥ 3.10. Without mpmath the independent and windowed checks do not run, and the
+verdict is **PARTIAL** with exit code **2** — not `ALL CHECKS PASSED`. Exit codes:
+`0` every check ran and passed, `2` something was skipped, `1` a check failed.
 
 ## Usage
 
@@ -202,6 +205,7 @@ docs/COMPARISON.md  how this compares to existing work, including where it loses
 docs/LAUNCH_COPY.md description, announcement posts, Q&A for introducing the repo
 docs/DESCRIPTION.md repo About field, PyPI summary, long description, topics
 docs/PYPI_README.md the PyPI project page (generated from DESCRIPTION.md section 3)
+docs/DISCOVERABILITY.md how to make the repo findable: PyPI, topics, CI, first citation
 ```
 
 ## Limits

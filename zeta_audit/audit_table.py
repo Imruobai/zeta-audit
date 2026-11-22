@@ -33,7 +33,7 @@ from pathlib import Path
 
 # Read the version from the package without importing it (avoids a circular import:
 # __init__ imports this module for its public ``audit_zero_table``).
-_TOOL_VERSION = "0.4.0"
+_TOOL_VERSION = "0.4.1"
 
 
 # --------------------------------------------------------------------------- #
@@ -304,6 +304,19 @@ def check_completeness(t: Table, windows: int = 3, window_rows: int = 200) -> di
 
 # --------------------------------------------------------------------------- #
 def audit(t: Table, windows: int = 3) -> dict:
+    """Run every check and decide the overall verdict.
+
+    A check that could not run is *not* a check that passed. ``independent`` reports
+    ``{"available": False}`` when mpmath is missing, and that dict has no ``ok`` key, so a
+    naive ``all(ok for ...)`` would silently ignore it. That was the behaviour until this
+    version, and it made the CLI print ``ALL CHECKS PASSED`` after skipping the only check
+    that can find a missing zero — the exact claim the README makes about ``skipped``.
+    The verdict is now three-valued:
+
+      ``all_ok``   every check ran and every check passed
+      ``partial``  something was skipped; what ran passed
+      ``failed``   at least one check that ran did not pass
+    """
     res = {
         "tool": f"zeta_audit {_TOOL_VERSION}",
         "table": t.path,
@@ -312,8 +325,15 @@ def audit(t: Table, windows: int = 3) -> dict:
         "independent": check_independent(t),
         "completeness": check_completeness(t, windows=windows),
     }
-    checks = [v for k, v in res.items() if isinstance(v, dict) and "ok" in v]
-    res["all_ok"] = all(c["ok"] for c in checks) if checks else False
+    ran = [v for k, v in res.items() if isinstance(v, dict) and "ok" in v]
+    skipped = [k for k, v in res.items()
+               if isinstance(v, dict) and v.get("available") is False]
+
+    passed = bool(ran) and all(c["ok"] for c in ran)
+    res["checks_run"] = len(ran)
+    res["checks_skipped"] = skipped
+    res["status"] = "passed" if passed and not skipped else ("partial" if passed else "failed")
+    res["all_ok"] = res["status"] == "passed"
     return res
 
 
@@ -369,11 +389,22 @@ def main(argv=None) -> int:
         else:
             print(f"completeness: skipped ({c.get('reason')})")
         print()
-        print("RESULT:", "ALL CHECKS PASSED" if res["all_ok"] else "FAILED")
+        status = res["status"]
+        if status == "passed":
+            print("RESULT: ALL CHECKS PASSED")
+        elif status == "partial":
+            sk = ", ".join(res["checks_skipped"])
+            print(f"RESULT: PARTIAL - every check that ran passed, but these did not run: {sk}")
+            print("        install the extra to close them:  pip install 'zeta-audit[crosscheck]'")
+        else:
+            print("RESULT: FAILED")
 
     if a.json:
         Path(a.json).write_text(json.dumps(res, indent=2, ensure_ascii=False), encoding="utf-8")
-    return 0 if res["all_ok"] else 1
+
+    # Exit codes: 0 only when everything ran and passed. A skipped check is *not* a pass,
+    # which is what the README promises, so it gets its own code rather than 0.
+    return {"passed": 0, "partial": 2}.get(res["status"], 1)
 
 
 if __name__ == "__main__":

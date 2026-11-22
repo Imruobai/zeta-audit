@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this tool in academic work, please cite it as below."
+title: "zeta-audit: a verifier for Riemann zeta zero tables"
+abstract: >-
+  A command-line tool that audits a Riemann zeta zero table: row structure, |zeta(1/2+it)|
+  residuals at sampled ordinates by two independent evaluators, an ordinate comparison
+  against mpmath's own zero finder, and a windowed zero count taken from zeta itself that
+  detects a missing ordinate. Demonstrated on Odlyzko's zeros1 (100,000 zeros) with a
+  negative control that must fail.
+authors:
+  - family-names: "Imruobai"
+    alias: "Imruobai"
+type: software
+license: MIT
+repository-code: "https://github.com/Imruobai/zeta-audit"
+url: "https://github.com/Imruobai/zeta-audit"
+keywords:
+  - riemann zeta
+  - zeta zeros
+  - zero table
+  - verification
+  - number theory
+  - odlyzko
+  - lmfdb
+version: "0.4.1"
+date-released: "2026-11-22"

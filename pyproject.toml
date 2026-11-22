@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zeta-audit"
-version = "0.4.0"
+version = "0.4.1"
 description = "Audit a Riemann zeta zero table: structure, residuals, independent cross-check, and a windowed count that detects a missing zero."
 readme = "docs/PYPI_README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
-authors = [{ name = "zeta-audit contributors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Imruobai" }]
 keywords = [
     "riemann-zeta",
     "zeta-zeros",
@@ -23,12 +24,14 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed",
 ]
 dependencies = ["numpy>=1.24"]
 
@@ -36,6 +39,7 @@ dependencies = ["numpy>=1.24"]
 Homepage = "https://github.com/Imruobai/zeta-audit"
 Repository = "https://github.com/Imruobai/zeta-audit"
 Issues = "https://github.com/Imruobai/zeta-audit/issues"
+Changelog = "https://github.com/Imruobai/zeta-audit/blob/main/docs/RELEASE_NOTES.md"
 
 [project.optional-dependencies]
 # mpmath is OPTIONAL and used only for the independent cross-check and the windowed

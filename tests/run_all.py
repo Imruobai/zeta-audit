@@ -412,6 +412,21 @@ def test_readme_code_blocks_unchanged() -> None:
     check("EN/ZH README code blocks unchanged", proc.returncode == 0, tail[0])
 
 
+
+def test_partial_when_a_check_is_skipped() -> None:
+    """A skipped check must not be reported as a pass (three-valued verdict)."""
+    import subprocess
+    import sys as _sys
+
+    proc = subprocess.run(
+        [_sys.executable, str(Path(__file__).with_name("test_partial_status.py"))],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+    )
+    tail = [ln for ln in proc.stdout.splitlines() if ln.strip()][-1:] or ["(no output)"]
+    check("verdict distinguishes skipped from passed", proc.returncode == 0, tail[0])
+
+
+
 def main() -> int:
     for fn in (
         test_zeta_values,
@@ -430,6 +445,7 @@ def main() -> int:
         test_base_cache_consistency,
         test_readmes_agree,
         test_readme_code_blocks_unchanged,
+        test_partial_when_a_check_is_skipped,
         test_crosscheck_against_mpmath,
         test_audit_table,
         test_audit_detects_missing_zero,
@@ -437,12 +453,32 @@ def main() -> int:
         print(f"\n=== {fn.__name__} ===")
         fn()
     failed = [c for c in CHECKS if not c[1]]
-    print(f"\n{len(CHECKS) - len(failed)}/{len(CHECKS)} checks passed")
+    total = len(CHECKS)
+    print(f"\n{total - len(failed)}/{total} checks passed")
     if failed:
         for name, _, detail in failed:
             print(f"  FAILED: {name} {detail}")
+
+    # Docs must not quote a stale total. This runs last on purpose: only now is `total`
+    # the final count. (Placing it inside the list meant it compared the docs against a
+    # partial count, 74 instead of 85.)
+    import os
+    import subprocess
+    import sys as _sys
+
+    doc = subprocess.run(
+        [_sys.executable, str(Path(__file__).with_name("test_doc_counts.py"))],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        env={**os.environ, "ZETA_AUDIT_SUITE_TOTAL": str(total)},
+    )
+    tail_line = [ln for ln in doc.stdout.splitlines() if ln.strip()][-1:] or ["(no output)"]
+    ok = doc.returncode == 0
+    print(f"[{'PASS' if ok else 'FAIL'}] docs quote the right total ({total})  ({tail_line[0]})")
+    if not ok:
+        print(doc.stdout)
         return 1
-    return 0
+
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

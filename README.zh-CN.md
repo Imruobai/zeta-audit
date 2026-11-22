@@ -2,6 +2,8 @@
 
 [英文](README.md) | **中文**
 
+[![ci](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/Imruobai/zeta-audit/actions/workflows/ci.yml) [![pypi](https://img.shields.io/pypi/v/zeta-audit.svg)](https://pypi.org/project/zeta-audit/)
+
 **把别人给你的零点表丢给它，直接看结论。**
 
 ```bash
@@ -107,7 +109,7 @@ RESULT: FAILED
 ## 验证：数字凭什么可信
 
 ```bash
-python tests/run_all.py    # 83 项检查
+python tests/run_all.py    # 84 项检查
 python verify.py           # 第三方复核已提交的产物
 python pipeline.py         # 全部产物重跑一遍（约 5 分钟，含 10 万行审计）
 python report.py           # 只从产物渲染 REPORT.md
@@ -139,7 +141,7 @@ pip install zeta-audit                  # 只依赖 numpy
 pip install "zeta-audit[crosscheck]"    # 加 mpmath，独立检查才可用
 ```
 
-要 Python ≥ 3.10。没装 mpmath 的话，独立检查和窗口检查会报 **skipped**，不会假装通过。
+要 Python ≥ 3.10。没装 mpmath 时，独立检查和窗口检查不会运行，结论是 **PARTIAL**、退出码 **2**，不是 `ALL CHECKS PASSED`。退出码：`0` 全部跑过且全过，`2` 有检查被跳过，`1` 有检查没过。
 
 ## 用法
 
@@ -203,6 +205,7 @@ docs/COMPARISON.md  和已有工作逐项对比，包括我们输的那些
 docs/LAUNCH_COPY.md 介绍用的文案、公告稿、问答
 docs/DESCRIPTION.md 仓库 About 字段、PyPI 摘要、长描述、标签
 docs/PYPI_README.md PyPI 项目页（从 DESCRIPTION.md 第 3 节生成）
+docs/DISCOVERABILITY.md 如何让它被找到：PyPI、topics、CI、第一处引用
 ```
 
 ## 局限

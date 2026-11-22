@@ -26,7 +26,7 @@ from .transparency import CertificateLog, merkle_root, entry_hash, verify_inclus
 from .primegen import attest, batch as attest_batch
 from .parallel import sweep_parallel, estimate_sequential
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 
 def __getattr__(name):

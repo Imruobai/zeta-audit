@@ -1,5 +1,35 @@
 # Release notes
 
+## v0.4.1: a skipped check no longer reports success
+
+Found by installing the built wheel into a clean venv with only numpy. The CLI printed
+`ALL CHECKS PASSED` and exited 0 after skipping `independent` and the windowed count, the
+two checks that can actually detect a **missing** zero. The README promised the opposite
+("skipped, not passed"), so the code was wrong, not the promise.
+
+### The verdict is now three-valued
+
+| status | meaning | exit code |
+| --- | --- | --- |
+| `passed` | every check ran and every check passed | 0 |
+| `partial` | something was skipped; what ran passed | 2 |
+| `failed` | at least one check that ran did not pass | 1 |
+
+`audit()` returns `status` and `checks_skipped` alongside `all_ok`, and `all_ok` is True
+only for `passed`. `tests/test_partial_status.py` exercises whichever branch the current
+environment can reach, so the invariant is checked with and without mpmath.
+
+### Packaging
+
+- SPDX `license = "MIT"` plus `license-files`; the deprecated `License ::` classifier is
+  gone, so `python -m build` no longer warns.
+- `twine check` passes on both sdist and wheel (previously unverified on the authoring
+  machine, where no setuptools existed).
+- Added `CITATION.cff`, `CONTRIBUTING.md`, GitHub Actions CI (3 Pythons x Ubuntu plus one
+  Windows, a numpy-only job that asserts the PARTIAL exit code, and a build job that
+  installs the wheel and runs it), and a tag-triggered PyPI trusted-publishing workflow.
+
+
 ## v0.4.0 — renamed to `zeta-audit`
 
 The distribution is now **`zeta-audit`** (`import zeta_audit`, CLI `zeta-audit`).
@@ -13,7 +43,7 @@ the arithmetic here is float, not certified, so `verify` would have overpromised
 - console script `zetaedge` -> `zeta-audit-cli`; the main tool stays `zeta-audit`
 - `python -m zetaedge...` -> `python -m zeta_audit...`
 
-Nothing else changed in this release; the 83 checks and the negative control pass
+Nothing else changed in this release; the 5 checks and the negative control pass
 unchanged.
 
 ### Packaging

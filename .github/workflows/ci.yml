@@ -1,0 +1,79 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tests (py${{ matrix.python }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12"]
+        include:
+          # one Windows run: the tool is developed there and file/permission behaviour differs
+          - os: windows-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: install (with the optional cross-check extra)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[crosscheck]"
+      - name: run the suite
+        run: python tests/run_all.py
+      - name: verify committed artifacts
+        run: python verify.py
+
+  minimal-deps:
+    name: tests with numpy only (mpmath absent)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+      - name: the independent checks must report PARTIAL, not PASS
+        run: |
+          set +e
+          zeta-audit data/odlyzko_zeros1.txt > out.txt 2>&1
+          code=$?
+          cat out.txt
+          if [ $code -ne 2 ]; then
+            echo "expected exit 2 (partial) without mpmath, got $code"; exit 1
+          fi
+          grep -q "PARTIAL" out.txt || { echo "expected PARTIAL in output"; exit 1; }
+          grep -q "skipped (mpmath not installed)" out.txt || { echo "expected skip notice"; exit 1; }
+
+  build:
+    name: build sdist + wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          python -m twine check dist/*
+      - name: install the wheel in a fresh venv and run it
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install "dist/"*.whl "mpmath>=1.3"
+          /tmp/v/bin/zeta-audit data/odlyzko_zeros1.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
